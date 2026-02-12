@@ -3,7 +3,7 @@ import { useAuth } from '../context/AuthContext';
 import { useTheme } from '../context/ThemeContext';
 import { useNavigate } from 'react-router-dom';
 import axios from 'axios';
-import { FiSun, FiMoon, FiLogOut, FiBook, FiUsers, FiCalendar, FiAward, FiPlus } from 'react-icons/fi';
+import { FiSun, FiMoon, FiLogOut, FiBook, FiUsers, FiCalendar, FiAward, FiPlus, FiBell } from 'react-icons/fi';
 import './StudentDashboard.css';
 
 const StudentDashboard = () => {
@@ -14,10 +14,45 @@ const StudentDashboard = () => {
   const [loading, setLoading] = useState(true);
   const [showEnrollModal, setShowEnrollModal] = useState(false);
   const [availableClubs, setAvailableClubs] = useState([]);
+  const [notifications, setNotifications] = useState([]);
+  const [notificationsLoading, setNotificationsLoading] = useState(true);
 
   useEffect(() => {
     fetchClubs();
   }, []);
+
+  useEffect(() => {
+    fetchNotifications();
+  }, []);
+
+  const fetchNotifications = async () => {
+    try {
+      const res = await axios.get('/notifications');
+      setNotifications(res.data);
+    } catch (err) {
+      console.error('Error fetching notifications:', err);
+    } finally {
+      setNotificationsLoading(false);
+    }
+  };
+
+  const markAsRead = async (id) => {
+    try {
+      await axios.patch(`/notifications/${id}/read`);
+      setNotifications((prev) => prev.map((n) => (n._id === id ? { ...n, read: true } : n)));
+    } catch (err) {
+      console.error('Error marking notification read:', err);
+    }
+  };
+
+  const markAllRead = async () => {
+    try {
+      await axios.patch('/notifications/read-all');
+      setNotifications((prev) => prev.map((n) => ({ ...n, read: true })));
+    } catch (err) {
+      console.error('Error marking all read:', err);
+    }
+  };
 
   const fetchClubs = async () => {
     try {
@@ -76,13 +111,15 @@ const StudentDashboard = () => {
         </div>
       </nav>
 
-      <div className="dashboard-content">
-        <div className="welcome-section">
-          <h1>Welcome, {user?.name}!</h1>
-          <p className="role-badge">Student • {user?.year || 'N/A'}</p>
-        </div>
+      <div className="dashboard-layout">
+        <div className="dashboard-main">
+          <div className="welcome-section">
+            <h1>Welcome, {user?.name}!</h1>
+            <p className="role-badge">Student • {user?.year || 'N/A'}</p>
+          </div>
 
-        <div className="dashboard-cards">
+          <div className="dashboard-cards-row">
+          <div className="dashboard-cards">
           {/* Results Card */}
           <div className="dashboard-card">
             <div className="card-icon results">
@@ -138,6 +175,48 @@ const StudentDashboard = () => {
                 Enroll in Clubs
               </button>
             </div>
+          </div>
+          </div>
+        <aside className="notifications-panel">
+          <div className="notifications-header">
+            <FiBell size={22} />
+            <span>Notifications</span>
+            {notifications.some((n) => !n.read) && (
+              <button type="button" className="mark-all-read" onClick={markAllRead}>
+                Mark all read
+              </button>
+            )}
+          </div>
+          <div className="notifications-list">
+            {notificationsLoading ? (
+              <p className="notifications-placeholder">Loading...</p>
+            ) : notifications.length === 0 ? (
+              <p className="notifications-placeholder">No notifications yet</p>
+            ) : (
+              notifications.map((n) => (
+                <div
+                  key={n._id}
+                  className={`notification-item ${n.read ? 'read' : ''}`}
+                  onClick={() => !n.read && markAsRead(n._id)}
+                  role="button"
+                  tabIndex={0}
+                  onKeyDown={(e) => e.key === 'Enter' && !n.read && markAsRead(n._id)}
+                >
+                  <div className="notification-title">{n.title}</div>
+                  <div className="notification-message">{n.message}</div>
+                  <div className="notification-time">
+                    {new Date(n.createdAt).toLocaleDateString(undefined, {
+                      month: 'short',
+                      day: 'numeric',
+                      hour: '2-digit',
+                      minute: '2-digit'
+                    })}
+                  </div>
+                </div>
+              ))
+            )}
+          </div>
+        </aside>
           </div>
         </div>
       </div>
