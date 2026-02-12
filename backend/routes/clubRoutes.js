@@ -2,8 +2,9 @@ import express from 'express';
 import { body, validationResult } from 'express-validator';
 import Club from '../models/Club.js';
 import User from '../models/User.js';
+import Notification from '../models/Notification.js';
+import Role from '../models/Role.js';
 import { protect, authorize } from '../middleware/auth.js';
-import { sendEmail } from '../utils/sendEmail.js';
 
 const router = express.Router();
 
@@ -74,7 +75,27 @@ router.post('/', [
     });
 
     await club.populate('coordinator', 'name email coordinatorId');
-    
+
+    // Notify all students about the new club
+    try {
+      const studentRole = await Role.findOne({ name: 'Student' });
+      if (studentRole) {
+        const students = await User.find({ role: studentRole._id }).select('_id').lean();
+        const notifications = students.map((s) => ({
+          user: s._id,
+          type: 'new_club',
+          title: 'New club added',
+          message: `"${name}" is now available. Enroll from your dashboard to join.`,
+          club: club._id
+        }));
+        if (notifications.length > 0) {
+          await Notification.insertMany(notifications);
+        }
+      }
+    } catch (notifErr) {
+      console.error('Create club notifications error:', notifErr.message);
+    }
+
     res.status(201).json(club);
   } catch (error) {
     console.error('Create club error:', error);
@@ -279,33 +300,23 @@ router.post('/:id/events', [
     await club.populate('coordinator', 'name email coordinatorId');
     await club.populate('members', 'name email studentId');
 
-    // Send email notification to all enrolled members
+    // Create in-app notifications for all club members
     try {
-      const emails = club.members
-        .map((m) => m.email)
-        .filter((email) => !!email);
-
-      if (emails.length > 0) {
-        const eventDate = newEvent.date.toLocaleString();
-        await sendEmail({
-          to: emails,
-          subject: `New event in ${club.name}: ${newEvent.title}`,
-          text: `Hello,
-
-A new event has been scheduled in the club "${club.name}".
-
-Title: ${newEvent.title}
-Date & Time: ${eventDate}
-Location: ${newEvent.location || 'TBA'}
-
-Description:
-${newEvent.description || 'No description'}
-
-- Academix`,
-        });
+      const memberIds = club.members.map((m) => (m._id ? m._id : m));
+      const notifications = memberIds.map((userId) => ({
+        user: userId,
+        type: 'new_event',
+        title: `New event in ${club.name}`,
+        message: `${newEvent.title} – ${new Date(newEvent.date).toLocaleString()}${newEvent.location ? ` at ${newEvent.location}` : ''}`,
+        club: club._id,
+        eventTitle: newEvent.title,
+        eventDate: newEvent.date
+      }));
+      if (notifications.length > 0) {
+        await Notification.insertMany(notifications);
       }
-    } catch (emailError) {
-      console.error('Failed to send event emails:', emailError.message);
+    } catch (notifErr) {
+      console.error('Event notifications error:', notifErr.message);
     }
 
     res.json(club);
