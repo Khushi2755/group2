@@ -14,10 +14,11 @@ router.post('/register', [
   body('name').trim().notEmpty().withMessage('Name is required'),
   body('email').isEmail().withMessage('Please provide a valid email'),
   body('password').isLength({ min: 6 }).withMessage('Password must be at least 6 characters'),
-  body('role').isIn(['Student', 'Teacher', 'Club Coordinator']).withMessage('Invalid role'),
+  body('role').isIn(['Student', 'Teacher', 'Club Coordinator', 'Librarian']).withMessage('Invalid role'),
   body('studentId').optional().trim(),
   body('department').optional().trim(),
-  body('year').optional().isIn(['1st Year', '2nd Year', '3rd Year', '4th Year']).withMessage('Invalid year')
+  // Treat empty string as missing so roles that don't use `year` (e.g. Librarian) won't fail validation
+  body('year').optional({ checkFalsy: true }).isIn(['1st Year', '2nd Year', '3rd Year', '4th Year']).withMessage('Invalid year')
 ], async (req, res) => {
   try {
     const errors = validationResult(req);

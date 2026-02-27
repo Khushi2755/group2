@@ -146,8 +146,12 @@ const StudentDashboard = () => {
               <FiBook size={32} />
             </div>
             <h3>Library</h3>
-            <p>Browse and manage library resources</p>
-            <button className="card-button">Visit Library</button>
+            <div style={{ display: 'flex', gap: 12, width: '100%', alignItems: 'center', justifyContent: 'space-between' }}>
+              <div style={{ display: 'flex', gap: 8 }}>
+                <button className="card-button" onClick={() => navigate('/student/library')}>Open Library</button>
+                <button className="card-button" onClick={() => navigate('/student/library')}>Course Materials</button>
+              </div>
+            </div>
           </div>
 
           {/* Clubs Card */}

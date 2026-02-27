@@ -70,7 +70,7 @@ describe('Authentication Flow Integration Tests', () => {
 
   describe('Role Validation', () => {
     test('should validate user roles', () => {
-      const validRoles = ['Student', 'Teacher', 'Club Coordinator'];
+      const validRoles = ['Student', 'Teacher', 'Club Coordinator', 'Librarian'];
       const isValidRole = (role) => validRoles.includes(role);
 
       expect(isValidRole('Student')).toBe(true);

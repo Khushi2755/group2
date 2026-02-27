@@ -9,6 +9,8 @@ import StudentDashboard from './pages/StudentDashboard';
 import CoordinatorDashboard from './pages/CoordinatorDashboard';
 import Home from './pages/Home';
 import Unauthorized from './pages/Unauthorized';
+import Library from './pages/Library';
+import AdminLibrary from './pages/AdminLibrary';
 
 function App() {
   return (
@@ -35,6 +37,14 @@ function App() {
               }
             />
             <Route
+              path="/student/library"
+              element={
+                <ProtectedRoute allowedRoles={['Student']}>
+                  <Library />
+                </ProtectedRoute>
+              }
+            />
+            <Route
               path="/teacher/*"
               element={
                 <ProtectedRoute allowedRoles={['Teacher']}>
@@ -47,6 +57,14 @@ function App() {
               element={
                 <ProtectedRoute allowedRoles={['Club Coordinator']}>
                   <CoordinatorDashboard />
+                </ProtectedRoute>
+              }
+            />
+            <Route
+              path="/librarian/library"
+              element={
+                <ProtectedRoute allowedRoles={['Librarian']}>
+                  <AdminLibrary />
                 </ProtectedRoute>
               }
             />

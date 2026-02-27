@@ -3,6 +3,7 @@ import { useNavigate } from 'react-router-dom';
 import { useAuth } from '../context/AuthContext';
 import StudentDashboard from './StudentDashboard';
 import CoordinatorDashboard from './CoordinatorDashboard';
+import AdminLibrary from './AdminLibrary';
 import './Dashboard.css';
 
 const Dashboard = () => {
@@ -40,12 +41,30 @@ const Dashboard = () => {
   }
 
   // Route to appropriate dashboard based on role
-  if (user.role === 'Student') {
-    return <StudentDashboard />;
-  }
+  if (user.role === 'Student') return <StudentDashboard />;
+  if (user.role === 'Club Coordinator') return <CoordinatorDashboard />;
 
-  if (user.role === 'Club Coordinator') {
-    return <CoordinatorDashboard />;
+  // Librarian dashboard: show admin UI inline
+  if (user.role === 'Librarian') {
+    return (
+      <div className="dashboard-container">
+        <div className="dashboard-content">
+          <div className="welcome-card">
+            <h1>Welcome back, {user?.name}!</h1>
+            <p className="role-badge">{user?.role}</p>
+          </div>
+          <div className="dashboard-message">
+            <div style={{ maxWidth: 1100, margin: '20px auto' }}>
+              <div className="library-panel" style={{ padding: 20 }}>
+                <h2 style={{ marginTop: 0 }}>Add / Update / Delete a Book</h2>
+                <p>Use the library admin below to manage book records and PDFs.</p>
+                <AdminLibrary />
+              </div>
+            </div>
+          </div>
+        </div>
+      </div>
+    );
   }
 
   // Default dashboard for Teacher and others
