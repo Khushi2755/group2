@@ -107,83 +107,42 @@ const Register = () => {
           </div>
 
           <div className="form-group">
-            <label htmlFor="role">
-              <FiUser className="icon" />
-              Role
+            <label htmlFor="studentId">
+              <FiBook className="icon" />
+              Student ID
+            </label>
+            <input
+              type="text"
+              id="studentId"
+              name="studentId"
+              value={formData.studentId}
+              onChange={handleChange}
+              placeholder="Enter your student ID"
+            />
+          </div>
+
+          <div className="form-group">
+            <label htmlFor="year">
+              <FiBook className="icon" />
+              Year
             </label>
             <select
-              id="role"
-              name="role"
-              value={formData.role}
+              id="year"
+              name="year"
+              value={formData.year}
               onChange={handleChange}
-              required
             >
-              <option value="Student">Student</option>
-              <option value="Teacher">Teacher</option>
-              <option value="Club Coordinator">Club Coordinator</option>
-              <option value="Librarian">Librarian</option>
+              <option value="">Select year</option>
+              <option value="1st Year">1st Year</option>
+              <option value="2nd Year">2nd Year</option>
+              <option value="3rd Year">3rd Year</option>
+              <option value="4th Year">4th Year</option>
             </select>
           </div>
 
-          {formData.role === 'Student' && (
-            <>
-              <div className="form-group">
-                <label htmlFor="studentId">
-                  <FiBook className="icon" />
-                  Student ID
-                </label>
-                <input
-                  type="text"
-                  id="studentId"
-                  name="studentId"
-                  value={formData.studentId}
-                  onChange={handleChange}
-                  placeholder="Enter your student ID"
-                />
-              </div>
-
-              <div className="form-group">
-                <label htmlFor="year">
-                  <FiBook className="icon" />
-                  Year
-                </label>
-                <select
-                  id="year"
-                  name="year"
-                  value={formData.year}
-                  onChange={handleChange}
-                >
-                  <option value="">Select year</option>
-                  <option value="1st Year">1st Year</option>
-                  <option value="2nd Year">2nd Year</option>
-                  <option value="3rd Year">3rd Year</option>
-                  <option value="4th Year">4th Year</option>
-                </select>
-              </div>
-            </>
-          )}
-
-          {formData.role === 'Club Coordinator' && (
-            <div className="form-group">
-              <label htmlFor="year">
-                <FiBook className="icon" />
-                Year
-              </label>
-              <select
-                id="year"
-                name="year"
-                value={formData.year}
-                onChange={handleChange}
-                required
-              >
-                <option value="">Select year</option>
-                <option value="1st Year">1st Year</option>
-                <option value="2nd Year">2nd Year</option>
-                <option value="3rd Year">3rd Year</option>
-                <option value="4th Year">4th Year</option>
-              </select>
-            </div>
-          )}
+          <div className="info-message">
+            <p>Signing up as <strong>Student</strong> only. Teacher/Coordinator/Librarian accounts must be created by Super Admin.</p>
+          </div>
 
           <div className="form-group">
             <label htmlFor="department">

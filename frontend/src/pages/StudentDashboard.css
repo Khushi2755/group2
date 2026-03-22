@@ -513,16 +513,23 @@
   margin: 0;
 }
 .material-item {
-  padding: 10px;
-  border-radius: 8px;
-  background: var(--bg-primary);
+  padding: 18px 20px;
+  border-radius: 12px;
+  background: var(--bg-secondary);
   border: 1px solid var(--border-color);
-  margin-bottom: 8px;
+  margin-bottom: 12px;
+  box-shadow: 0 8px 20px rgba(15, 23, 42, 0.08);
 }
 .material-link {
-  font-weight: 800;
-  font-size: 1.15rem;
+  font-weight: 900;
+  font-size: 1.35rem;
   color: var(--accent-primary);
+  line-height: 1.35;
+}
+.material-meta {
+  font-size: 1.05rem;
+  margin-top: 6px;
+  color: var(--text-secondary);
 }
 .material-meta {
   font-size: 0.95rem;

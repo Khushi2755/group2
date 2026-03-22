@@ -10,6 +10,9 @@ const Library = () => {
   const [books, setBooks] = useState([]);
   const [search, setSearch] = useState('');
   const [materials, setMaterials] = useState([]);
+  const [materialQuery, setMaterialQuery] = useState('');
+  const [materialYear, setMaterialYear] = useState(user?.year || '');
+  const [materialSemester, setMaterialSemester] = useState('');
   const [activeTab, setActiveTab] = useState('library');
 
   useEffect(() => {
@@ -53,7 +56,14 @@ const Library = () => {
 
   const fetchMaterials = async () => {
     try {
-      const res = await axios.get('/library/course-materials', { params: { year: user?.year } });
+      const params = {};
+      if (materialYear) params.year = materialYear;
+      if (materialSemester) params.semester = materialSemester;
+      if (materialQuery) params.search = materialQuery;
+      // fallback to user year if no filter year selected
+      if (!materialYear && user?.year) params.year = user.year;
+
+      const res = await axios.get('/library/books', { params });
       setMaterials(res.data || []);
     } catch (err) {
       console.error('Error fetching materials', err);
@@ -130,17 +140,62 @@ const Library = () => {
             <div className="library-container">
               <div className="library-panel" style={{ width: '100%' }}>
                 <h2>Course Materials</h2>
-                <p className="materials-sub">Materials for your year: <strong>{user?.year || 'N/A'}</strong></p>
+                <div className="materials-filter-row" style={{ display: 'grid', gridTemplateColumns: '170px 190px 1fr 120px 120px', gap: '10px', alignItems: 'center', marginBottom: '12px' }}>
+                  <div style={{ display:'flex', alignItems:'center', gap: '8px' }}>
+                    <label style={{ fontWeight: 600 }}>Year</label>
+                    <select value={materialYear} onChange={(e) => setMaterialYear(e.target.value)} style={{ width: '100%' }}>
+                      <option value="">All</option>
+                      <option value="1st Year">1st Year</option>
+                      <option value="2nd Year">2nd Year</option>
+                      <option value="3rd Year">3rd Year</option>
+                      <option value="4th Year">4th Year</option>
+                    </select>
+                  </div>
+                  <div style={{ display:'flex', alignItems:'center', gap: '8px' }}>
+                    <label style={{ fontWeight: 600 }}>Semester</label>
+                    <select value={materialSemester} onChange={(e) => setMaterialSemester(e.target.value)} style={{ width: '100%' }}>
+                      <option value="">All</option>
+                      <option value="1st Semester">1st Semester</option>
+                      <option value="2nd Semester">2nd Semester</option>
+                    </select>
+                  </div>
+                  <div style={{ display:'flex', alignItems:'center', gap: '8px' }}>
+                    <label style={{ fontWeight: 600 }}>Search</label>
+                    <input
+                      type="text"
+                      value={materialQuery}
+                      onChange={(e) => setMaterialQuery(e.target.value)}
+                      placeholder="Search by title/author"
+                      style={{ width: '100%', padding: '8px 10px', borderRadius: '8px', border: '1px solid var(--border-color)' }}
+                    />
+                  </div>
+                  <button className="search-button" style={{ height: '38px', width: '100%' }} onClick={fetchMaterials}>Apply</button>
+                  <button className="search-button" style={{ height: '38px', width: '100%', backgroundColor: '#999' }} onClick={() => { setMaterialYear(user?.year || ''); setMaterialSemester(''); setMaterialQuery(''); fetchMaterials(); }}>Reset</button>
+                </div>
+                <p className="materials-sub">Materials for your year: <strong>{materialYear || user?.year || 'All'}</strong></p>
                 {materials.length === 0 ? (
                   <div className="empty">No materials available</div>
                 ) : (
                   <ul className="materials-list">
-                    {materials.map(m => (
-                      <li key={m._id} className="material-item">
-                        <a href={m.fileUrl} target="_blank" rel="noreferrer" className="material-link">{m.title}</a>
-                        <div className="material-meta">{m.courseId} — {m.courseName} • {m.uploadedBy}</div>
-                      </li>
-                    ))}
+                    {materials.map((m) => {
+                      const displayUrl = m.fileUrl?.startsWith('http') ? m.fileUrl : m.fileUrl ? `/api${m.fileUrl}` : m.link;
+                      const linkLabel = m.fileName || m.title || (m.fileUrl?.split('/').pop()) || 'Open';
+
+                      return (
+                        <li key={m._id || m.id} className="material-item">
+                          <a href={displayUrl} target="_blank" rel="noreferrer" className="material-link">
+                            {linkLabel}
+                          </a>
+                          <div className="material-meta">
+                            {m.title ? `${m.title}` : ''}
+                            {m.author ? ` • ${m.author}` : ''}
+                            {m.year ? ` • ${m.year}` : ''}
+                            {m.semester ? ` • ${m.semester}` : ''}
+                            {m.isbn ? ` • ${m.isbn}` : ''}
+                          </div>
+                        </li>
+                      );
+                    })}
                   </ul>
                 )}
               </div>

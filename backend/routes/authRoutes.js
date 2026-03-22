@@ -3,9 +3,13 @@ import { body, validationResult } from 'express-validator';
 import User from '../models/User.js';
 import Role from '../models/Role.js';
 import { generateToken } from '../utils/generateToken.js';
-import { protect } from '../middleware/auth.js';
+import { sendEmail } from '../utils/sendEmail.js';
+import { protect, authorize } from '../middleware/auth.js';
 
 const router = express.Router();
+
+const SUPER_ADMIN_EMAIL = 'superadmin@iiitt.ac.in';
+const SUPER_ADMIN_PASSWORD = 'coder2324';
 
 // @route   POST /api/auth/register
 // @desc    Register a new user
@@ -14,7 +18,8 @@ router.post('/register', [
   body('name').trim().notEmpty().withMessage('Name is required'),
   body('email').isEmail().withMessage('Please provide a valid email'),
   body('password').isLength({ min: 6 }).withMessage('Password must be at least 6 characters'),
-  body('role').isIn(['Student', 'Teacher', 'Club Coordinator', 'Librarian']).withMessage('Invalid role'),
+  // role will be enforced as Student for public sign-up
+  body('role').optional().isString(),
   body('studentId').optional().trim(),
   body('department').optional().trim(),
   // Treat empty string as missing so roles that don't use `year` (e.g. Librarian) won't fail validation
@@ -26,7 +31,12 @@ router.post('/register', [
       return res.status(400).json({ errors: errors.array() });
     }
 
-    const { name, email, password, role, studentId, department, year } = req.body;
+    const { name, email, password, role = 'Student', studentId, department, year } = req.body;
+
+    // Only students can self-register
+    if (role !== 'Student') {
+      return res.status(400).json({ message: 'Self registration is only available for Students' });
+    }
 
     // Check if user already exists
     const userExists = await User.findOne({ email });
@@ -42,42 +52,21 @@ router.post('/register', [
       }
     }
 
-    // Find or create role
-    let userRole = await Role.findOne({ name: role });
+    // Find or create student role
+    let userRole = await Role.findOne({ name: 'Student' });
     if (!userRole) {
-      userRole = await Role.create({ name: role });
+      userRole = await Role.create({ name: 'Student' });
     }
 
-    // Generate unique coordinatorId for Club Coordinators
-    let coordinatorId = undefined;
-    if (role === 'Club Coordinator') {
-      let isUnique = false;
-      while (!isUnique) {
-        coordinatorId = `CC${Date.now()}${Math.floor(Math.random() * 1000)}`;
-        const exists = await User.findOne({ coordinatorId });
-        if (!exists) {
-          isUnique = true;
-        }
-      }
-    }
-
-    // Create user - only include year if role is Student or Club Coordinator
     const userData = {
       name,
       email,
       password,
       role: userRole._id,
-      department: department || undefined
+      department: department || undefined,
+      studentId: studentId || undefined,
+      year: year || undefined
     };
-
-    if (role === 'Student') {
-      userData.studentId = studentId || undefined;
-      userData.year = year || undefined;
-    } else if (role === 'Club Coordinator') {
-      userData.coordinatorId = coordinatorId;
-      userData.year = year || undefined;
-    }
-    // Teacher role - no studentId, coordinatorId, or year
 
     const user = await User.create(userData);
 
@@ -120,7 +109,44 @@ router.post('/login', [
 
     const { email, password } = req.body;
 
-    // Check for user and include password for comparison
+    // Super Admin hard-coded login provision
+    if (email.toLowerCase() === SUPER_ADMIN_EMAIL && password === SUPER_ADMIN_PASSWORD) {
+      let superAdminRole = await Role.findOne({ name: 'Super Admin' });
+      if (!superAdminRole) {
+        superAdminRole = await Role.create({ name: 'Super Admin' });
+      }
+
+      let superAdminUser = await User.findOne({ email }).select('+password').populate('role');
+
+      if (!superAdminUser) {
+        superAdminUser = await User.create({
+          name: 'Super Admin',
+          email,
+          password,
+          role: superAdminRole._id
+        });
+        await superAdminUser.populate('role');
+      } else {
+        if (superAdminUser.role?.name !== 'Super Admin') {
+          superAdminUser.role = superAdminRole._id;
+          await superAdminUser.save();
+          await superAdminUser.populate('role');
+        }
+      }
+
+      superAdminUser.lastLogin = new Date();
+      await superAdminUser.save();
+
+      return res.json({
+        _id: superAdminUser._id,
+        name: superAdminUser.name,
+        email: superAdminUser.email,
+        role: 'Super Admin',
+        token: generateToken(superAdminUser._id)
+      });
+    }
+
+    // Check for regular user and include password for comparison
     const user = await User.findOne({ email }).select('+password').populate('role');
 
     if (!user) {
@@ -155,6 +181,98 @@ router.post('/login', [
     });
   } catch (error) {
     console.error('Login error:', error);
+    res.status(500).json({ message: 'Server error', error: error.message });
+  }
+});
+
+// @route   POST /api/auth/create-user
+// @desc    Super Admin creates teacher/coordinator/librarian users
+// @access  Private (Super Admin only)
+router.post('/create-user', protect, authorize('Super Admin'), [
+  body('email').isEmail().withMessage('Please provide a valid email'),
+  body('password').isLength({ min: 6 }).withMessage('Password must be at least 6 characters'),
+  body('role').isIn(['Teacher', 'Club Coordinator', 'Librarian']).withMessage('Invalid role'),
+  body('name').optional().trim()
+], async (req, res) => {
+  try {
+    console.log('Create-user request:', {
+      userId: req.user?._id,
+      userName: req.user?.name,
+      userRole: req.user?.role?.name,
+      body: req.body
+    });
+
+    const errors = validationResult(req);
+    if (!errors.isEmpty()) {
+      console.error('Validation errors:', errors.array());
+      return res.status(400).json({ errors: errors.array() });
+    }
+
+    const { name, email, password, role, department } = req.body;
+
+    const userExists = await User.findOne({ email });
+    if (userExists) {
+      return res.status(400).json({ message: 'User already exists with this email' });
+    }
+
+    let userRole = await Role.findOne({ name: role });
+    if (!userRole) {
+      userRole = await Role.create({ name: role });
+    }
+
+    let coordinatorId;
+    if (role === 'Club Coordinator') {
+      let isUnique = false;
+      while (!isUnique) {
+        coordinatorId = `CC${Date.now()}${Math.floor(Math.random() * 1000)}`;
+        const exists = await User.findOne({ coordinatorId });
+        if (!exists) {
+          isUnique = true;
+        }
+      }
+    }
+
+    const newUserData = {
+      name: name || `${role} User`,
+      email,
+      password,
+      role: userRole._id,
+      coordinatorId: coordinatorId || undefined,
+      department: role === 'Teacher' && department ? department : undefined
+    };
+
+    const newUser = await User.create(newUserData);
+    await newUser.populate('role');
+
+    const resetLink = `${process.env.FRONTEND_URL || 'http://localhost:5173'}/reset-password?email=${encodeURIComponent(email)}`;
+
+    try {
+      const emailResult = await sendEmail({
+        to: email,
+        subject: 'Academix account created',
+        text: `Your account as ${role} has been created. Use this link to reset password: ${resetLink}`,
+        html: `<p>Your account as <strong>${role}</strong> has been created.</p><p>Click the link to set your password: <a href="${resetLink}">${resetLink}</a></p>`
+      });
+      console.info('Email sent:', emailResult);
+    } catch (emailError) {
+      console.warn('Could not send email to user', email, emailError);
+    }
+
+    res.status(201).json({
+      message: 'User created successfully',
+      user: {
+        _id: newUser._id,
+        name: newUser.name,
+        email: newUser.email,
+        role: newUser.role.name,
+        coordinatorId: newUser.coordinatorId,
+        department: newUser.department
+      },
+      resetLink,
+      note: 'Send this link to the user for password reset'
+    });
+  } catch (error) {
+    console.error('Create user error:', error);
     res.status(500).json({ message: 'Server error', error: error.message });
   }
 });

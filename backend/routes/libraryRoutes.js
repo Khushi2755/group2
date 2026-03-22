@@ -64,8 +64,16 @@ router.get('/shelves/:shelf/books', protect, async (req, res) => {
 // GET /api/library/books - search across titles/authors
 router.get('/books', protect, async (req, res) => {
   try {
-    const { search, shelf } = req.query;
+    const { search, shelf, year, semester } = req.query;
     const query = {};
+
+    const userRole = req.user?.role?.name;
+    if (userRole === 'Student') {
+      if (req.user.year) query.year = req.user.year;
+    }
+
+    if (year) query.year = year;
+    if (semester) query.semester = semester;
     if (search) {
       query.$or = [
         { title: { $regex: search, $options: 'i' } },
@@ -73,6 +81,7 @@ router.get('/books', protect, async (req, res) => {
       ];
     }
     if (shelf) query.shelf = shelf;
+
     const books = await LibraryBook.find(query);
     res.json(books);
   } catch (error) {
@@ -81,43 +90,70 @@ router.get('/books', protect, async (req, res) => {
   }
 });
 
-// POST /api/library/books - add a new book (Librarian only)
-router.post('/books', protect, authorize('Librarian'), upload.single('file'), async (req, res) => {
+// POST /api/library/books - add a new book (Librarian and Teacher)
+router.post('/books', protect, authorize('Librarian', 'Teacher'), upload.single('file'), async (req, res) => {
   try {
-    const { title, author, isbn, shelf, available } = req.body;
-    
-    // Check if file was uploaded and has size > 0
-    if (!req.file) {
-      return res.status(400).json({ message: 'PDF file is required' });
+    const { title, author, isbn, shelf, available, link } = req.body;
+
+    // Require title and either uploaded PDF or external link
+    if (!title || title.trim() === '') {
+      return res.status(400).json({ message: 'Title is required' });
     }
-    
-    if (req.file.size === 0) {
-      return res.status(400).json({ message: 'PDF file is empty' });
+
+    const hasFile = !!req.file;
+    const hasLink = link && link.trim() !== '';
+
+    if (!hasFile && !hasLink) {
+      return res.status(400).json({ message: 'Either PDF file or external link is required' });
     }
-    
-    const fileUrl = `/uploads/library/${req.file.filename}`;
+
+    let fileUrl;
+    if (hasFile) {
+      if (req.file.size === 0) {
+        return res.status(400).json({ message: 'PDF file is empty' });
+      }
+      fileUrl = `/uploads/library/${req.file.filename}`;
+    } else {
+      fileUrl = link.trim();
+    }
+
+    const finalShelf = shelf && shelf.trim() !== '' ? shelf : 'Shelf A';
+    const finalYear = req.body.year || '1st Year';
+    const finalSemester = req.body.semester || '1st Semester';
+
+    if (!['1st Year', '2nd Year', '3rd Year', '4th Year'].includes(finalYear)) {
+      return res.status(400).json({ message: 'Year must be 1st Year to 4th Year' });
+    }
+    if (!['1st Semester', '2nd Semester'].includes(finalSemester)) {
+      return res.status(400).json({ message: 'Semester must be 1st Semester or 2nd Semester' });
+    }
+
     //console.log(`[Library] Uploaded file: ${req.file.filename}, Size: ${req.file.size} bytes`);
     
     const book = await LibraryBook.create({ 
       title, 
       author, 
       isbn, 
-      shelf, 
+      shelf: finalShelf, 
+      year: finalYear,
+      semester: finalSemester,
       available: available !== 'false' && available !== false ? true : false, 
       fileUrl, 
+      fileName: req.file?.originalname || '',
+      link: req.body.link || '',
       addedBy: req.user._id 
     });
 
-    // Notify all students about the new book
+    // Notify students in the target year about the new book
     try {
       const studentRole = await Role.findOne({ name: 'Student' });
       if (studentRole) {
-        const students = await User.find({ role: studentRole._id }).select('_id').lean();
+        const students = await User.find({ role: studentRole._id, year: finalYear }).select('_id').lean();
         const notifications = students.map((s) => ({
           user: s._id,
           type: 'library_book_added',
           title: 'New library book added',
-          message: `"${title}" has been added to ${shelf} and is now available in the library.`
+          message: `"${title}" for ${finalYear}, ${finalSemester} has been added to ${finalShelf}.`
         }));
         if (notifications.length > 0) {
           await Notification.insertMany(notifications);
