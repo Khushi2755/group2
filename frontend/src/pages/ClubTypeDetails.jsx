@@ -1,14 +1,13 @@
 import { useState, useEffect } from 'react';
 import { useAuth } from '../context/AuthContext';
-import { useTheme } from '../context/ThemeContext';
 import { useParams, useNavigate } from 'react-router-dom';
 import axios from 'axios';
-import { FiSun, FiMoon, FiLogOut, FiPlus, FiTrash2, FiUsers, FiCalendar, FiX, FiArrowLeft } from 'react-icons/fi';
+import { FiPlus, FiTrash2, FiUsers, FiCalendar, FiX, FiArrowLeft } from 'react-icons/fi';
+import TopNavbar from '../components/TopNavbar';
 import './ClubTypeDetails.css';
 
 const ClubTypeDetails = () => {
-  const { user, logout } = useAuth();
-  const { theme, toggleTheme } = useTheme();
+  const { user } = useAuth();
   const navigate = useNavigate();
   const { type } = useParams();
   
@@ -50,11 +49,6 @@ const ClubTypeDetails = () => {
       console.error('Error fetching clubs:', error);
       setLoading(false);
     }
-  };
-
-  const handleLogout = () => {
-    logout();
-    navigate('/login');
   };
 
   const handleAddClub = async (e) => {
@@ -129,25 +123,13 @@ const ClubTypeDetails = () => {
 
   return (
     <div className="club-type-details">
-      <nav className="dashboard-nav">
-        <div className="nav-brand">
-          <button className="back-btn" onClick={() => navigate('/clubs')}>
-            <FiArrowLeft size={20} />
-          </button>
-          <h2>Academix</h2>
-        </div>
-        <div className="nav-actions">
-          <button className="theme-toggle-nav" onClick={toggleTheme}>
-            {theme === 'light' ? <FiMoon size={20} /> : <FiSun size={20} />}
-          </button>
-          <button className="logout-button" onClick={handleLogout}>
-            <FiLogOut size={18} />
-            Logout
-          </button>
-        </div>
-      </nav>
-
+      <TopNavbar />
       <div className="details-content">
+        <div style={{ margin: '10px 0' }}>
+          <button className="back-btn" onClick={() => navigate('/clubs')}>
+            <FiArrowLeft size={20} /> Back to Club Categories
+          </button>
+        </div>
         <div className="type-header" style={{ background: typeColors[type] }}>
           <div className="type-header-content">
             <span className="type-header-icon">{typeIcons[type]}</span>

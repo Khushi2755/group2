@@ -1,7 +1,6 @@
 import { useState, useEffect } from 'react';
 import { useNavigate } from 'react-router-dom';
 import { useAuth } from '../context/AuthContext';
-import TopNavbar from '../components/TopNavbar';
 import axios from 'axios';
 import './StudentDashboard.css';
 
@@ -78,7 +77,6 @@ const AdminLibrary = () => {
 
   return (
     <div className="student-dashboard">
-      <TopNavbar />
       <div className="dashboard-layout">
         <div className="dashboard-main">
           <div className="library-container">

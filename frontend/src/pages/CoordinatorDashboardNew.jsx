@@ -1,14 +1,12 @@
 import { useState, useEffect } from 'react';
 import { useAuth } from '../context/AuthContext';
-import { useTheme } from '../context/ThemeContext';
 import { useNavigate } from 'react-router-dom';
 import axios from 'axios';
-import { FiSun, FiMoon, FiLogOut } from 'react-icons/fi';
+import TopNavbar from '../components/TopNavbar';
 import './CoordinatorDashboard.css';
 
 const CoordinatorDashboardNew = () => {
-  const { user, logout } = useAuth();
-  const { theme, toggleTheme } = useTheme();
+  const { user } = useAuth();
   const navigate = useNavigate();
   const [clubs, setClubs] = useState([]);
   const [loading, setLoading] = useState(true);
@@ -43,28 +41,9 @@ const CoordinatorDashboardNew = () => {
     navigate(`/clubs/${type}`);
   };
 
-  const handleLogout = () => {
-    logout();
-    navigate('/login');
-  };
-
   return (
     <div className="coordinator-dashboard">
-      <nav className="dashboard-nav">
-        <div className="nav-brand">
-          <h2>Academix</h2>
-        </div>
-        <div className="nav-actions">
-          <button className="theme-toggle-nav" onClick={toggleTheme}>
-            {theme === 'light' ? <FiMoon size={20} /> : <FiSun size={20} />}
-          </button>
-          <button className="logout-button" onClick={handleLogout}>
-            <FiLogOut size={18} />
-            Logout
-          </button>
-        </div>
-      </nav>
-
+      <TopNavbar />
       <div className="dashboard-content">
         <div className="welcome-section">
           <h1>Welcome, {user?.name}!</h1>
