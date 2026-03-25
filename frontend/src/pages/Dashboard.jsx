@@ -3,7 +3,7 @@ import { useNavigate } from 'react-router-dom';
 import axios from 'axios';
 import { useAuth } from '../context/AuthContext';
 import StudentDashboard from './StudentDashboard';
-import CoordinatorDashboard from './CoordinatorDashboard';
+import CoordinatorDashboardNew from './CoordinatorDashboardNew';
 import SuperAdminDashboard from './SuperAdminDashboard';
 import AdminLibrary from './AdminLibrary';
 import TopNavbar from '../components/TopNavbar';
@@ -54,7 +54,7 @@ const Dashboard = () => {
 
   // Route to appropriate dashboard based on role
   if (user.role === 'Student') return <StudentDashboard />;
-  if (user.role === 'Club Coordinator') return <CoordinatorDashboard />;
+  if (user.role === 'Club Coordinator') return <CoordinatorDashboardNew />;
   if (user.role === 'Super Admin') return <SuperAdminDashboard />;
 
   // Librarian dashboard: show admin UI inline
