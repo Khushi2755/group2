@@ -218,6 +218,186 @@
   font-size: 0.95rem;
 }
 
+/* Librarian library dashboard enhancements */
+.library-page {
+  background: linear-gradient(120deg, #f6f9fc, #e9edf3);
+}
+
+.library-container {
+  display: flex;
+  gap: 24px;
+  align-items: flex-start;
+  padding: 36px;
+  width: 100%;
+  max-width: 1300px;
+  margin: 0 auto;
+  box-sizing: border-box;
+}
+
+.library-left, .library-right {
+  min-width: 0;
+}
+
+.library-left {
+  flex: 1;
+}
+
+.library-right {
+  width: 360px;
+  flex-shrink: 0;
+}
+
+.library-panel {
+  background: #ffffff;
+  border: 1px solid var(--border-color);
+  border-radius: 14px;
+  box-shadow: 0 8px 20px rgba(31, 45, 61, 0.08);
+  padding: 22px;
+}
+
+.library-panel h2 {
+  font-size: 1.85rem;
+  margin-bottom: 18px;
+  color: var(--text-primary);
+}
+
+.library-panel form {
+  display: grid;
+  grid-gap: 12px;
+  margin-bottom: 18px;
+}
+
+.library-panel form input,
+.library-panel form select {
+  width: 100%;
+  padding: 10px 14px;
+  border: 1px solid var(--border-color);
+  border-radius: 10px;
+  font-size: 0.95rem;
+}
+
+.library-panel form button {
+  width: fit-content;
+  padding: 10px 18px;
+  border-radius: 10px;
+  border: none;
+  color: white;
+  background: var(--accent-primary);
+  font-weight: 700;
+  cursor: pointer;
+}
+
+.library-panel form button:hover {
+  transform: translateY(-1px);
+  box-shadow: 0 6px 14px rgba(99, 102, 241, 0.3);
+}
+
+.books-list h4,
+.library-panel h2 {
+  letter-spacing: 0.02em;
+}
+
+.book-item {
+  background: #fff;
+  border: 1px solid var(--border-color);
+  border-radius: 14px;
+  padding: 16px;
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  gap: 14px;
+  box-shadow: 0 3px 8px rgba(15, 23, 42, 0.08);
+  margin-bottom: 12px;
+}
+
+.book-actions {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  flex-wrap: wrap;
+}
+
+.book-action-btn {
+  padding: 8px 14px;
+  border-radius: 8px;
+  border: none;
+  cursor: pointer;
+  font-weight: 700;
+  color: white;
+  transition: transform 0.2s ease, filter 0.2s ease;
+}
+
+.book-action-btn.issue { background: #2563eb; }
+.book-action-btn.edit { background: #1d4ed8; }
+.book-action-btn.delete { background: #dc2626; }
+
+.book-action-btn:hover {
+  transform: translateY(-1px);
+  filter: brightness(1.05);
+}
+
+.library-tabs {
+  margin-top: 16px;
+  display: flex;
+  gap: 8px;
+}
+
+.library-tab {
+  background: #f3f4f6;
+  border: 1px solid var(--border-color);
+  border-radius: 8px;
+  color: var(--text-secondary);
+  padding: 8px 12px;
+  font-weight: 600;
+  cursor: pointer;
+}
+
+.library-tab.active,
+.library-tab:hover {
+  border-color: var(--accent-primary);
+  color: var(--accent-primary);
+}
+
+.issues-table {
+  width: 100%;
+  border-collapse: collapse;
+  margin-top: 14px;
+}
+
+.issues-table th,
+.issues-table td {
+  border: 1px solid var(--border-color);
+  padding: 10px;
+  text-align: left;
+}
+
+.overdue-row {
+  background: rgba(239, 68, 68, 0.08);
+}
+
+@media (max-width: 900px) {
+  .library-container {
+    flex-direction: column;
+    padding: 20px;
+  }
+
+  .library-right,
+  .library-left {
+    width: 100%;
+  }
+
+  .book-item {
+    flex-direction: column;
+    align-items: flex-start;
+  }
+
+  .book-actions {
+    width: 100%;
+    justify-content: flex-start;
+  }
+}
+
+
 .dashboard-cards {
   display: grid;
   grid-template-columns: repeat(2, minmax(0, 1fr));
@@ -323,6 +503,40 @@
   margin-bottom: 0.5rem;
   border-radius: 8px;
   color: var(--text-primary);
+}
+
+.club-item {
+  display: flex;
+  flex-direction: column;
+  gap: 0.3rem;
+}
+
+.club-info {
+  display: flex;
+  align-items: center;
+  gap: 0.75rem;
+  justify-content: space-between;
+}
+
+.club-type-badge {
+  font-size: 0.75rem;
+  font-weight: 700;
+  border-radius: 999px;
+  padding: 0.25rem 0.6rem;
+  color: #fff;
+  text-transform: uppercase;
+}
+
+.club-type-badge.technical {
+  background: #6366f1;
+}
+
+.club-type-badge.cultural {
+  background: #ec4899;
+}
+
+.club-type-badge.sports {
+  background: #f59e0b;
 }
 
 .clubs-actions {

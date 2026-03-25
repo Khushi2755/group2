@@ -6,7 +6,8 @@ import Login from './pages/Login';
 import Register from './pages/Register';
 import Dashboard from './pages/Dashboard';
 import StudentDashboard from './pages/StudentDashboard';
-import CoordinatorDashboard from './pages/CoordinatorDashboard';
+import CoordinatorDashboardNew from './pages/CoordinatorDashboardNew';
+import ClubTypeDetails from './pages/ClubTypeDetails';
 import Home from './pages/Home';
 import Unauthorized from './pages/Unauthorized';
 import Library from './pages/Library';
@@ -64,7 +65,15 @@ function App() {
               path="/coordinator/*"
               element={
                 <ProtectedRoute allowedRoles={['Club Coordinator']}>
-                  <CoordinatorDashboard />
+                  <CoordinatorDashboardNew />
+                </ProtectedRoute>
+              }
+            />
+            <Route
+              path="/clubs/:type"
+              element={
+                <ProtectedRoute allowedRoles={['Club Coordinator']}>
+                  <ClubTypeDetails />
                 </ProtectedRoute>
               }
             />

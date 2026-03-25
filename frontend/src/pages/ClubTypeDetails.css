@@ -1,4 +1,4 @@
-.coordinator-dashboard {
+.club-type-details {
   min-height: 100vh;
   background: var(--bg-primary);
 }
@@ -13,6 +13,32 @@
   box-shadow: 0 2px 4px var(--shadow);
 }
 
+.nav-brand {
+  display: flex;
+  align-items: center;
+  gap: 1rem;
+}
+
+.back-btn {
+  background: var(--bg-primary);
+  border: 2px solid var(--border-color);
+  border-radius: 10px;
+  width: 40px;
+  height: 40px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  cursor: pointer;
+  color: var(--text-primary);
+  transition: all 0.3s ease;
+}
+
+.back-btn:hover {
+  border-color: var(--accent-primary);
+  color: var(--accent-primary);
+  transform: scale(1.05);
+}
+
 .nav-brand h2 {
   background: linear-gradient(135deg, var(--accent-primary) 0%, var(--accent-hover) 100%);
   -webkit-background-clip: text;
@@ -20,6 +46,7 @@
   background-clip: text;
   font-size: 1.5rem;
   font-weight: 700;
+  margin: 0;
 }
 
 .nav-actions {
@@ -67,45 +94,67 @@
   box-shadow: 0 4px 8px var(--shadow);
 }
 
-.dashboard-content {
+.details-content {
   max-width: 1400px;
   margin: 0 auto;
   padding: 2rem;
 }
 
-.welcome-section {
-  margin-bottom: 2rem;
-}
-
-.welcome-section h1 {
-  font-size: 2.5rem;
-  color: var(--text-primary);
-  margin-bottom: 0.5rem;
-}
-
-.role-badge {
-  display: inline-block;
-  background: linear-gradient(135deg, var(--accent-primary) 0%, var(--accent-hover) 100%);
+.type-header {
+  border-radius: 15px;
+  padding: 3rem 2rem;
+  margin-bottom: 3rem;
+  box-shadow: 0 8px 24px rgba(0, 0, 0, 0.15);
   color: white;
-  padding: 0.5rem 1.5rem;
-  border-radius: 50px;
-  font-weight: 600;
-  font-size: 0.95rem;
 }
 
-.clubs-header {
+.type-header-content {
+  display: flex;
+  align-items: center;
+  gap: 2rem;
+}
+
+.type-header-icon {
+  font-size: 4rem;
+  line-height: 1;
+}
+
+.type-header h1 {
+  font-size: 2.5rem;
+  margin: 0;
+  font-weight: 800;
+}
+
+.type-header p {
+  margin: 0.5rem 0 0 0;
+  font-size: 1rem;
+  opacity: 0.95;
+  font-weight: 500;
+}
+
+.clubs-management {
+  background: var(--bg-secondary);
+  border: 2px solid var(--border-color);
+  border-radius: 15px;
+  padding: 2rem;
+}
+
+.clubs-toolbar {
   display: flex;
   justify-content: space-between;
   align-items: center;
   margin-bottom: 2rem;
+  padding-bottom: 1.5rem;
+  border-bottom: 2px solid var(--border-color);
 }
 
-.clubs-header h2 {
+.clubs-toolbar h2 {
   color: var(--text-primary);
-  font-size: 2rem;
+  font-size: 1.8rem;
+  margin: 0;
 }
 
-.add-club-button {
+.btn-add-club {
   background: linear-gradient(135deg, var(--accent-primary) 0%, var(--accent-hover) 100%);
   color: white;
   border: none;
@@ -117,53 +166,97 @@
   cursor: pointer;
   font-weight: 600;
   transition: all 0.3s ease;
+  font-size: 0.95rem;
 }
 
-.add-club-button:hover {
+.btn-add-club:hover {
   transform: translateY(-2px);
   box-shadow: 0 6px 20px rgba(99, 102, 241, 0.4);
 }
 
-.no-clubs {
+.loading-message {
+  text-align: center;
+  padding: 3rem;
+  color: var(--text-secondary);
+}
+
+.empty-state {
   text-align: center;
   padding: 4rem 2rem;
-  color: var(--text-secondary);
-  background: var(--bg-secondary);
-  border-radius: 15px;
+  background: var(--bg-primary);
+  border-radius: 12px;
   border: 2px dashed var(--border-color);
 }
 
-.clubs-grid {
+.empty-state p {
+  color: var(--text-secondary);
+  font-size: 1.1rem;
+  margin-bottom: 1.5rem;
+}
+
+.btn-create-first {
+  background: linear-gradient(135deg, var(--accent-primary) 0%, var(--accent-hover) 100%);
+  color: white;
+  border: none;
+  border-radius: 10px;
+  padding: 0.75rem 1.5rem;
+  cursor: pointer;
+  font-weight: 600;
+  transition: all 0.3s ease;
+  font-size: 0.95rem;
+}
+
+.btn-create-first:hover {
+  transform: translateY(-2px);
+  box-shadow: 0 6px 20px rgba(99, 102, 241, 0.4);
+}
+
+.clubs-container {
   display: grid;
   grid-template-columns: repeat(auto-fill, minmax(400px, 1fr));
   gap: 2rem;
 }
 
-.club-card {
-  background: var(--bg-secondary);
+.club-card-detail {
+  background: var(--bg-primary);
   border: 2px solid var(--border-color);
-  border-radius: 15px;
+  border-radius: 12px;
   padding: 1.5rem;
   transition: all 0.3s ease;
 }
 
-.club-card:hover {
-  transform: translateY(-5px);
-  box-shadow: 0 10px 25px var(--shadow);
+.club-card-detail:hover {
   border-color: var(--accent-primary);
+  box-shadow: 0 8px 20px var(--shadow);
+  transform: translateY(-4px);
 }
 
-.club-header {
+.club-header-detail {
   display: flex;
   justify-content: space-between;
-  align-items: center;
-  margin-bottom: 1rem;
+  align-items: flex-start;
+  gap: 1rem;
+  margin-bottom: 1.5rem;
+  padding-bottom: 1rem;
+  border-bottom: 2px solid var(--border-color);
 }
 
-.club-header h3 {
+.club-title-section {
+  flex: 1;
+}
+
+.club-header-detail h3 {
   color: var(--text-primary);
-  font-size: 1.5rem;
+  font-size: 1.3rem;
+  margin: 0 0 0.3rem 0;
+  font-weight: 700;
+}
+
+.club-desc-detail {
+  color: var(--text-secondary);
+  font-size: 0.85rem;
   margin: 0;
+  font-style: italic;
 }
 
 .delete-club-btn {
@@ -178,6 +271,7 @@
   justify-content: center;
   cursor: pointer;
   transition: all 0.3s ease;
+  flex-shrink: 0;
 }
 
 .delete-club-btn:hover {
@@ -185,94 +279,130 @@
   transform: scale(1.1);
 }
 
-.club-description {
-  color: var(--text-secondary);
-  margin-bottom: 1.5rem;
-  font-style: italic;
+.club-sections {
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: 1.5rem;
 }
 
-.club-section {
-  margin-bottom: 1.5rem;
-  padding-bottom: 1.5rem;
-  border-bottom: 1px solid var(--border-color);
+@media (max-width: 768px) {
+  .club-sections {
+    grid-template-columns: 1fr;
+  }
 }
 
-.club-section:last-child {
-  border-bottom: none;
-  margin-bottom: 0;
-  padding-bottom: 0;
+.club-section-detail {
+  padding: 1rem;
+  background: var(--bg-secondary);
+  border: 1px solid var(--border-color);
+  border-radius: 10px;
 }
 
-.section-header {
+.section-title {
   display: flex;
   align-items: center;
   gap: 0.5rem;
   color: var(--text-primary);
   font-weight: 600;
   margin-bottom: 1rem;
+  font-size: 0.95rem;
 }
 
-.members-list,
-.events-list {
-  margin-bottom: 1rem;
+.section-content {
+  display: flex;
+  flex-direction: column;
+  gap: 0.8rem;
+}
+
+.members-list-detail,
+.events-list-detail {
+  display: flex;
+  flex-direction: column;
+  gap: 0.5rem;
   max-height: 200px;
   overflow-y: auto;
+  margin-bottom: 0.5rem;
+  padding: 0.5rem;
+  background: var(--bg-primary);
+  border-radius: 8px;
+  border: 1px solid var(--border-color);
 }
 
-.member-item,
-.event-item {
+.member-item-detail,
+.event-item-detail {
   display: flex;
   justify-content: space-between;
   align-items: center;
-  padding: 0.75rem;
+  padding: 0.5rem;
   background: var(--bg-primary);
-  border-radius: 8px;
-  margin-bottom: 0.5rem;
-}
-
-.member-item span,
-.event-item div {
-  color: var(--text-primary);
-}
-
-.event-item div strong {
-  display: block;
-  margin-bottom: 0.25rem;
-}
-
-.event-item div p {
+  border-radius: 6px;
   font-size: 0.85rem;
-  color: var(--text-secondary);
-  margin: 0;
 }
 
-.remove-btn {
+.member-info {
+  display: flex;
+  flex-direction: column;
+  gap: 0.2rem;
+  flex: 1;
+}
+
+.member-name {
+  color: var(--text-primary);
+  font-weight: 500;
+}
+
+.member-id {
+  color: var(--text-secondary);
+  font-size: 0.75rem;
+}
+
+.event-info {
+  flex: 1;
+  display: flex;
+  flex-direction: column;
+  gap: 0.3rem;
+}
+
+.event-info strong {
+  color: var(--text-primary);
+  display: block;
+  font-weight: 600;
+}
+
+.event-meta {
+  color: var(--text-secondary);
+  font-size: 0.75rem;
+}
+
+.remove-btn-detail {
   background: var(--error);
   color: white;
   border: none;
   border-radius: 6px;
-  width: 28px;
-  height: 28px;
+  width: 24px;
+  height: 24px;
   display: flex;
   align-items: center;
   justify-content: center;
   cursor: pointer;
   transition: all 0.3s ease;
+  flex-shrink: 0;
 }
 
-.remove-btn:hover {
+.remove-btn-detail:hover {
   background: #c82333;
-  transform: scale(1.1);
 }
 
-.empty-state {
+.empty-message {
   color: var(--text-secondary);
+  font-size: 0.85rem;
+  margin: 0;
   font-style: italic;
   text-align: center;
-  padding: 1rem;
+  padding: 0.75rem;
 }
 
-.action-btn {
+.action-btn-detail {
   background: var(--accent-primary);
   color: white;
   border: none;
@@ -280,17 +410,18 @@
   padding: 0.5rem 1rem;
   display: flex;
   align-items: center;
+  justify-content: center;
   gap: 0.5rem;
   cursor: pointer;
-  font-weight: 500;
+  font-weight: 600;
+  font-size: 0.85rem;
   transition: all 0.3s ease;
   width: 100%;
-  justify-content: center;
 }
 
-.action-btn:hover {
-  background: var(--accent-hover);
+.action-btn-detail:hover {
   transform: translateY(-2px);
+  box-shadow: 0 4px 12px rgba(99, 102, 241, 0.3);
 }
 
 .modal-overlay {
@@ -314,61 +445,73 @@
   width: 90%;
   max-height: 80vh;
   overflow-y: auto;
+  border: 1px solid var(--border-color);
 }
 
 .modal-content h2 {
   color: var(--text-primary);
+  margin: 0 0 1.5rem 0;
+  font-size: 1.5rem;
+}
+
+.form-group {
   margin-bottom: 1.5rem;
 }
 
-.modal-content .form-group {
-  margin-bottom: 1.5rem;
-}
-
-.modal-content .form-group label {
+.form-group label {
   display: block;
   color: var(--text-primary);
+  font-weight: 600;
   margin-bottom: 0.5rem;
-  font-weight: 500;
+  font-size: 0.9rem;
 }
 
-.modal-content .form-group input,
-.modal-content .form-group textarea {
+.form-group input,
+.form-group textarea {
   width: 100%;
   padding: 0.75rem;
-  border: 2px solid var(--border-color);
+  border: 1px solid var(--border-color);
   border-radius: 8px;
   background: var(--bg-secondary);
   color: var(--text-primary);
   font-family: inherit;
-  font-size: 1rem;
+  font-size: 0.95rem;
+  transition: all 0.3s ease;
+  box-sizing: border-box;
 }
 
-.modal-content .form-group input:focus,
-.modal-content .form-group textarea:focus {
+.form-group input:focus,
+.form-group textarea:focus {
   outline: none;
   border-color: var(--accent-primary);
+  box-shadow: 0 0 0 3px rgba(99, 102, 241, 0.1);
 }
 
 .modal-actions {
   display: flex;
   gap: 1rem;
-  margin-top: 1.5rem;
+  margin-top: 2rem;
 }
 
 .modal-actions button {
   flex: 1;
-  padding: 0.75rem;
+  padding: 0.75rem 1rem;
   border: none;
   border-radius: 8px;
   font-weight: 600;
   cursor: pointer;
   transition: all 0.3s ease;
+  font-size: 0.95rem;
 }
 
 .modal-actions button[type="button"] {
-  background: var(--bg-tertiary);
+  background: var(--bg-secondary);
   color: var(--text-primary);
+  border: 1px solid var(--border-color);
+}
+
+.modal-actions button[type="button"]:hover {
+  background: var(--border-color);
 }
 
 .modal-actions button[type="submit"] {
@@ -376,93 +519,7 @@
   color: white;
 }
 
-.modal-actions button:hover {
+.modal-actions button[type="submit"]:hover {
   transform: translateY(-2px);
-}
-
-.club-types-grid {
-  display: grid;
-  grid-template-columns: repeat(auto-fit, minmax(260px, 1fr));
-  gap: 1.5rem;
-  margin-top: 1.5rem;
-}
-
-.club-type-card {
-  background: var(--bg-secondary);
-  border: 2px solid var(--border-color);
-  border-radius: 16px;
-  overflow: hidden;
-  cursor: pointer;
-  transition: all 0.3s ease;
-  display: flex;
-  flex-direction: column;
-  min-height: 240px;
-}
-
-.club-type-card:hover {
-  transform: translateY(-6px);
-  box-shadow: 0 16px 35px var(--shadow);
-  border-color: var(--accent-primary);
-}
-
-.type-card-gradient {
-  height: 120px;
-  display: flex;
-  align-items: center;
-  justify-content: center;
-}
-
-.type-card-content {
-  padding: 1.2rem;
-  display: flex;
-  flex-direction: column;
-  align-items: center;
-  text-align: center;
-  flex: 1;
-  justify-content: center;
-}
-
-.type-icon {
-  font-size: 2.8rem;
-  line-height: 1;
-  margin-bottom: 0.75rem;
-}
-
-.type-card-content h3 {
-  color: var(--text-primary);
-  margin: 0;
-  font-size: 1.3rem;
-  font-weight: 700;
-}
-
-.type-count {
-  color: var(--text-secondary);
-  margin: 0.35rem 0 0.7rem;
-  font-weight: 600;
-}
-
-.type-hint {
-  color: var(--accent-primary);
-  font-size: 0.85rem;
-  margin: 0;
-  font-weight: 600;
-}
-
-  box-shadow: 0 4px 8px var(--shadow);
-}
-
-@media (max-width: 768px) {
-  .clubs-grid {
-    grid-template-columns: 1fr;
-  }
-
-  .clubs-header {
-    flex-direction: column;
-    align-items: flex-start;
-    gap: 1rem;
-  }
-
-  .welcome-section h1 {
-    font-size: 2rem;
-  }
+  box-shadow: 0 4px 12px rgba(99, 102, 241, 0.4);
 }
