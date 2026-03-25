@@ -166,7 +166,14 @@ const StudentDashboard = () => {
               ) : myClubs.length > 0 ? (
                 <ul>
                   {myClubs.map(club => (
-                    <li key={club._id}>{club.name}</li>
+                    <li key={club._id} className="club-item">
+                      <div className="club-info">
+                        <strong>{club.name}</strong>
+                        <span className={`club-type-badge ${((club.type||'Sports').toLowerCase())}`}>
+                          {(club.type || 'Sports')} Club
+                        </span>
+                      </div>
+                    </li>
                   ))}
                 </ul>
               ) : (

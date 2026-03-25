@@ -378,6 +378,76 @@
 
 .modal-actions button:hover {
   transform: translateY(-2px);
+}
+
+.club-types-grid {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(260px, 1fr));
+  gap: 1.5rem;
+  margin-top: 1.5rem;
+}
+
+.club-type-card {
+  background: var(--bg-secondary);
+  border: 2px solid var(--border-color);
+  border-radius: 16px;
+  overflow: hidden;
+  cursor: pointer;
+  transition: all 0.3s ease;
+  display: flex;
+  flex-direction: column;
+  min-height: 240px;
+}
+
+.club-type-card:hover {
+  transform: translateY(-6px);
+  box-shadow: 0 16px 35px var(--shadow);
+  border-color: var(--accent-primary);
+}
+
+.type-card-gradient {
+  height: 120px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+}
+
+.type-card-content {
+  padding: 1.2rem;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  text-align: center;
+  flex: 1;
+  justify-content: center;
+}
+
+.type-icon {
+  font-size: 2.8rem;
+  line-height: 1;
+  margin-bottom: 0.75rem;
+}
+
+.type-card-content h3 {
+  color: var(--text-primary);
+  margin: 0;
+  font-size: 1.3rem;
+  font-weight: 700;
+}
+
+.type-count {
+  color: var(--text-secondary);
+  margin: 0.35rem 0 0.7rem;
+  font-weight: 600;
+}
+
+.type-hint {
+  color: var(--accent-primary);
+  font-size: 0.85rem;
+  margin: 0;
+  font-weight: 600;
+}
+
   box-shadow: 0 4px 8px var(--shadow);
 }
 

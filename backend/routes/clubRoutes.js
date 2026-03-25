@@ -59,7 +59,7 @@ router.post('/', [
       return res.status(400).json({ errors: errors.array() });
     }
 
-    const { name, description } = req.body;
+    const { name, description, type } = req.body;
 
     // Check if club already exists
     const clubExists = await Club.findOne({ name });
@@ -70,6 +70,7 @@ router.post('/', [
     const club = await Club.create({
       name,
       description: description || '',
+      type: type || 'Sports',
       coordinator: req.user._id,
       members: []
     });

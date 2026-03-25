@@ -20,6 +20,12 @@ const clubSchema = new mongoose.Schema({
     type: mongoose.Schema.Types.ObjectId,
     ref: 'User'
   }],
+  type: {
+    type: String,
+    enum: ['Technical', 'Cultural', 'Sports'],
+    default: 'Sports',
+    required: true
+  },
   events: [{
     title: String,
     description: String,
