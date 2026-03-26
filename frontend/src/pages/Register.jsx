@@ -140,6 +140,8 @@ const Register = () => {
             </select>
           </div>
 
+
+
           <div className="info-message">
             <p>Signing up as <strong>Student</strong> only. Teacher/Coordinator/Librarian accounts must be created by Super Admin.</p>
           </div>

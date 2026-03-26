@@ -448,9 +448,6 @@
   font-weight: 600;
 }
 
-  box-shadow: 0 4px 8px var(--shadow);
-}
-
 @media (max-width: 768px) {
   .clubs-grid {
     grid-template-columns: 1fr;

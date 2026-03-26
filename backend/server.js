@@ -5,7 +5,9 @@ import connectDB from './config/db.js';
 import authRoutes from './routes/authRoutes.js';
 import clubRoutes from './routes/clubRoutes.js';
 import notificationRoutes from './routes/notificationRoutes.js';
+import attendanceRoutes from './routes/attendanceRoutes.js';
 import libraryRoutes from './routes/libraryRoutes.js';
+import courseRegistrationRoutes from './routes/courseRegistrationRoutes.js';
 import path from 'path';
 import fs from 'fs';
 
@@ -36,7 +38,9 @@ app.use('/api/uploads', express.static(uploadsDir));
 app.use('/api/auth', authRoutes);
 app.use('/api/clubs', clubRoutes);
 app.use('/api/notifications', notificationRoutes);
+app.use('/api/attendance', attendanceRoutes);
 app.use('/api/library', libraryRoutes);
+app.use('/api/course-registration', courseRegistrationRoutes);
 
 // Health check route
 app.get('/api/health', (req, res) => {

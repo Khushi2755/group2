@@ -12,6 +12,7 @@ import Home from './pages/Home';
 import Unauthorized from './pages/Unauthorized';
 import Library from './pages/Library';
 import AdminLibrary from './pages/AdminLibrary';
+import TeacherAttendance from './pages/TeacherAttendance';
 
 function App() {
   return (
@@ -58,6 +59,14 @@ function App() {
               element={
                 <ProtectedRoute allowedRoles={['Teacher']}>
                   <Dashboard />
+                </ProtectedRoute>
+              }
+            />
+            <Route
+              path="/teacher/attendance"
+              element={
+                <ProtectedRoute allowedRoles={['Teacher']}>
+                  <TeacherAttendance />
                 </ProtectedRoute>
               }
             />

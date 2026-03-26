@@ -16,14 +16,30 @@ const StudentDashboard = () => {
   const [availableClubs, setAvailableClubs] = useState([]);
   const [notifications, setNotifications] = useState([]);
   const [notificationsLoading, setNotificationsLoading] = useState(true);
+  const [attendanceStats, setAttendanceStats] = useState(null);
+  const [attendanceLoading, setAttendanceLoading] = useState(true);
 
   useEffect(() => {
     fetchClubs();
+    fetchAttendanceStats();
   }, []);
 
   useEffect(() => {
     fetchNotifications();
   }, []);
+
+  const fetchAttendanceStats = async () => {
+    setAttendanceLoading(true);
+    try {
+      const res = await axios.get('/attendance/mystats');
+      setAttendanceStats(res.data);
+    } catch (err) {
+      console.error('Error fetching attendance stats:', err);
+      setAttendanceStats(null);
+    } finally {
+      setAttendanceLoading(false);
+    }
+  };
 
   const fetchNotifications = async () => {
     try {
@@ -115,7 +131,9 @@ const StudentDashboard = () => {
         <div className="dashboard-main">
           <div className="welcome-section">
             <h1>Welcome, {user?.name}!</h1>
-            <p className="role-badge">Student • {user?.year || 'N/A'}</p>
+            <p className="role-badge">
+              Student • {user?.year || 'N/A'} • {user?.semesterTerm ? user.semesterTerm.toUpperCase() : 'TERM N/A'}
+            </p>
           </div>
 
           <div className="dashboard-cards-row">
@@ -136,8 +154,18 @@ const StudentDashboard = () => {
               <FiCalendar size={32} />
             </div>
             <h3>Attendance</h3>
-            <p>Check your attendance records</p>
-            <button className="card-button">View Attendance</button>
+            {attendanceLoading ? (
+              <p>Loading attendance...</p>
+            ) : attendanceStats ? (
+              <div>
+                <p>Present: {attendanceStats.present} / {attendanceStats.total}</p>
+                <p>Absent: {attendanceStats.absent}</p>
+                <p>Attendance: {attendanceStats.percent}%</p>
+              </div>
+            ) : (
+              <p>Unable to load attendance</p>
+            )}
+            <button className="card-button" onClick={fetchAttendanceStats}>Refresh</button>
           </div>
 
           {/* Library Card */}

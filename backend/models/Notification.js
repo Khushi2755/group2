@@ -10,7 +10,16 @@ const notificationSchema = new mongoose.Schema({
   type: {
     type: String,
     required: true,
-    enum: ['new_club', 'new_event', 'library_book_added', 'library_book_deleted', 'library_book_status_changed'],
+    enum: [
+      'new_club',
+      'new_event',
+      'library_book_added',
+      'library_book_deleted',
+      'library_book_status_changed',
+      'attendance_absent',
+      'attendance_low',
+      'attendance_threshold'
+    ],
     trim: true
   },
   title: {

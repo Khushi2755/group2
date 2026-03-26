@@ -22,6 +22,7 @@ const Dashboard = () => {
   const [courseMessage, setCourseMessage] = useState('');
   const [courseLoading, setCourseLoading] = useState(false);
 
+
   useEffect(() => {
     if (!loading && user) {
       if (user.role === 'Student') {
@@ -32,6 +33,8 @@ const Dashboard = () => {
       // Teacher stays on default dashboard
     }
   }, [user, loading]);
+
+
 
   if (loading) {
     return (
@@ -87,7 +90,7 @@ const Dashboard = () => {
       {
         title: 'Attendance',
         description: 'View and manage attendance records for classes',
-        action: () => alert('Attendance screen coming soon'),
+        action: () => navigate('/teacher/attendance'),
       },
       {
         title: 'Results',
@@ -124,6 +127,7 @@ const Dashboard = () => {
               </button>
             ))}
           </div>
+
 
           {isCourseMaterialModalOpen && (
             <div className="popup-overlay" onClick={() => setIsCourseMaterialModalOpen(false)}>

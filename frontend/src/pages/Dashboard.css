@@ -3,14 +3,65 @@
   background: var(--bg-primary);
 }
 
-.dashboard-nav {
-  background: var(--bg-secondary);
-  border-bottom: 1px solid var(--border-color);
-  padding: 1rem 2rem;
-  display: flex;
-  justify-content: space-between;
-  align-items: center;
-  box-shadow: 0 2px 4px var(--shadow);
+.attendance-section {
+  background: linear-gradient(140deg, rgba(99, 102, 241, 0.11) 0%, rgba(79, 70, 229, 0.08) 100%);
+  border: 1.5px solid rgba(99, 102, 241, 0.3);
+  border-radius: 16px;
+  padding: 1.4rem;
+  margin-bottom: 1.8rem;
+  box-shadow: 0 14px 30px rgba(15, 23, 42, 0.12);
+}
+
+.attendance-section h2 {
+  margin-top: 0;
+  margin-bottom: 0.8rem;
+  font-size: 1.8rem;
+  color: #0f172a;
+}
+
+.attendance-form button {
+  color: white;
+  border: none;
+  border-radius: 10px;
+  cursor: pointer;
+  font-weight: 700;
+  background: linear-gradient(135deg, #4f46e5, #6366f1);
+  box-shadow: 0 8px 20px rgba(99, 102, 241, 0.35);
+  transition: transform 0.2s ease, opacity 0.2s ease;
+}
+
+.attendance-form button:hover {
+  transform: translateY(-1px);
+  opacity: 0.95;
+}
+
+.attendance-form .success-message,
+.attendance-form .error-message {
+  text-align: left;
+  margin-top: 0.5rem;
+  font-weight: 600;
+}
+
+.attendance-form .success-message {
+  color: #16a34a;
+}
+
+.attendance-form .error-message {
+  color: #dc2626;
+}
+
+.history-table thead tr {
+  background: linear-gradient(90deg, #4338ca, #6366f1);
+  color: #fff;
+}
+
+.history-table tbody tr:hover {
+  background: rgba(99, 102, 241, 0.15);
+}
+
+.history-table td,
+.history-table th {
+  padding: 0.9rem 1.1rem;
 }
 
 .nav-brand h2 {
@@ -216,7 +267,41 @@
 .dashboard-table-wrapper {
   margin-top: 2rem;
 }
+.attendance-form {
+  display: grid;
+  grid-template-columns: repeat(4, minmax(180px, 1fr));
+  gap: 0.75rem;
+  align-items: end;
+  margin-bottom: 0.8rem;
+}
 
+.attendance-form .form-row {
+  display: flex;
+  flex-direction: column;
+  gap: 0.25rem;
+}
+
+.attendance-form .form-row input,
+.attendance-form .form-row select {
+  height: 42px;
+  padding: 0.45rem 0.7rem;
+  border-radius: 10px;
+  border: 1px solid var(--border-color);
+  background: var(--bg-primary);
+  color: var(--text-primary);
+  width: 100%;
+}
+
+.attendance-form .form-row label {
+  font-weight: 600;
+  font-size: 0.9rem;
+  color: var(--text-secondary);
+}
+
+.attendance-form .form-row button,
+.attendance-form .form-row > button {
+  min-height: 44px;
+}
 .scroll-table {
   max-height: 320px;
   overflow-y: auto;
@@ -227,14 +312,54 @@
 .history-table {
   width: 100%;
   border-collapse: collapse;
-  min-width: 820px;
+  min-width: 0;
+  table-layout: fixed;
+  font-size: 1rem;
 }
 
 .history-table th,
 .history-table td {
   border-bottom: 1px solid var(--border-color);
-  padding: 0.75rem 0.9rem;
+  padding: 1rem 1.2rem;
   text-align: left;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+}
+
+.history-table th {
+  font-weight: 700;
+}
+
+.history-table td {
+  font-size: 0.95rem;
+}
+
+.history-table th:nth-child(1),
+.history-table td:nth-child(1) {
+  width: 18%;
+}
+
+.history-table th:nth-child(2),
+.history-table td:nth-child(2) {
+  width: 20%;
+}
+
+.history-table th:nth-child(3),
+.history-table td:nth-child(3) {
+  width: 14%;
+}
+
+.history-table th:nth-child(4),
+.history-table td:nth-child(4),
+.history-table th:nth-child(5),
+.history-table td:nth-child(5) {
+  width: 12%;
+}
+
+.history-table th:nth-child(6),
+.history-table td:nth-child(6) {
+  width: 14%;
 }
 
 .history-table th {

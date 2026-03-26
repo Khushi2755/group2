@@ -11,6 +11,76 @@ const router = express.Router();
 const SUPER_ADMIN_EMAIL = 'superadmin@iiitt.ac.in';
 const SUPER_ADMIN_PASSWORD = 'coder2324';
 
+const getCurrentSemester = () => {
+  const month = new Date().getMonth() + 1;
+  if (month >= 3 && month <= 8) {
+    return 'even';
+  }
+  return 'odd';
+};
+
+const getNextSemesterAndYear = (semester, year) => {
+  let nextSemester = semester + 1;
+  let nextYear = year;
+
+  if (nextSemester > 8) {
+    nextSemester = 1;
+    if (year === '1st Year') nextYear = '2nd Year';
+    else if (year === '2nd Year') nextYear = '3rd Year';
+    else if (year === '3rd Year') nextYear = '4th Year';
+    else if (year === '4th Year') nextYear = '4th Year';
+  }
+
+  return { nextSemester, nextYear };
+};
+
+const performSemesterSync = async (user) => {
+  if (!user) return;
+
+  const now = new Date();
+  const prettySession = getCurrentSemester();
+
+  // set default semester if missing
+  if (!user.semester) {
+    if (user.year === '1st Year') user.semester = 2;
+    else if (user.year === '2nd Year') user.semester = 4;
+    else if (user.year === '3rd Year') user.semester = 6;
+    else if (user.year === '4th Year') user.semester = 8;
+    else user.semester = prettySession === 'even' ? 2 : 1;
+    user.semesterLastUpdated = now;
+  }
+
+  if (!user.semesterLastUpdated) {
+    user.semesterLastUpdated = now;
+  }
+
+  const lastUpdated = new Date(user.semesterLastUpdated);
+  let monthsElapsed = (now.getFullYear() - lastUpdated.getFullYear()) * 12 + (now.getMonth() - lastUpdated.getMonth());
+
+  // If the current month has not reached the same day in existing count, subtract partial month
+  if (now.getDate() < lastUpdated.getDate()) {
+    monthsElapsed -= 1;
+  }
+
+  const cycles = Math.floor(monthsElapsed / 6);
+  if (cycles > 0) {
+    let currentSemester = user.semester || 1;
+    let currentYear = user.year || '1st Year';
+
+    for (let i = 0; i < cycles; i++) {
+      const { nextSemester, nextYear } = getNextSemesterAndYear(currentSemester, currentYear);
+      currentSemester = nextSemester;
+      currentYear = nextYear;
+    }
+
+    user.semester = currentSemester;
+    user.year = currentYear;
+    user.semesterLastUpdated = now;
+  }
+
+  await user.save();
+};
+
 // @route   POST /api/auth/register
 // @desc    Register a new user
 // @access  Public
@@ -38,6 +108,20 @@ router.post('/register', [
       return res.status(400).json({ message: 'Self registration is only available for Students' });
     }
 
+    // Derive semester from registration month (even/odd), with year mapping
+    let computedSemester;
+    if (year === '1st Year') {
+      computedSemester = getCurrentSemester() === 'even' ? 2 : 1;
+    } else if (year === '2nd Year') {
+      computedSemester = getCurrentSemester() === 'even' ? 4 : 3;
+    } else if (year === '3rd Year') {
+      computedSemester = getCurrentSemester() === 'even' ? 6 : 5;
+    } else if (year === '4th Year') {
+      computedSemester = getCurrentSemester() === 'even' ? 8 : 7;
+    } else {
+      computedSemester = getCurrentSemester() === 'even' ? 2 : 1;
+    }
+
     // Check if user already exists
     const userExists = await User.findOne({ email });
     if (userExists) {
@@ -58,6 +142,7 @@ router.post('/register', [
       userRole = await Role.create({ name: 'Student' });
     }
 
+    const now = new Date();
     const userData = {
       name,
       email,
@@ -65,7 +150,9 @@ router.post('/register', [
       role: userRole._id,
       department: department || undefined,
       studentId: studentId || undefined,
-      year: year || undefined
+      year: year || undefined,
+      semester: computedSemester,
+      semesterLastUpdated: now
     };
 
     const user = await User.create(userData);
@@ -86,6 +173,8 @@ router.post('/register', [
       coordinatorId: user.coordinatorId,
       department: user.department,
       year: user.year,
+      semester: user.semester,
+      semesterTerm: user.semester % 2 === 0 ? 'even' : 'odd',
       token: generateToken(user._id)
     });
   } catch (error) {
@@ -163,6 +252,9 @@ router.post('/login', [
     if (!isMatch) {
       return res.status(401).json({ message: 'Invalid credentials' });
     }
+
+    // Sync semester/year before responding
+    await performSemesterSync(user);
 
     // Update last login
     user.lastLogin = new Date();
@@ -277,12 +369,78 @@ router.post('/create-user', protect, authorize('Super Admin'), [
   }
 });
 
+// @route   GET /api/auth/created-users
+// @desc    Get all users created by super admin (for history display)
+// @access  Private (Super Admin only)
+router.get('/created-users', protect, authorize('Super Admin'), async (req, res) => {
+  try {
+    // Get roles to filter
+    const teacherRole = await Role.findOne({ name: 'Teacher' });
+    const coordinatorRole = await Role.findOne({ name: 'Club Coordinator' });
+    const librarianRole = await Role.findOne({ name: 'Librarian' });
+    
+    const roleIds = [teacherRole?._id, coordinatorRole?._id, librarianRole?._id].filter(Boolean);
+
+    const users = await User.find({ role: { $in: roleIds } })
+      .populate('role', 'name')
+      .select('name email department createdAt')
+      .sort({ createdAt: -1 })
+      .lean();
+
+    const formattedUsers = users.map(user => ({
+      id: user._id,
+      name: user.name,
+      email: user.email,
+      role: user.role?.name || 'N/A',
+      department: user.department || 'N/A',
+      createdAt: new Date(user.createdAt).toLocaleString()
+    }));
+
+    res.json(formattedUsers);
+  } catch (error) {
+    console.error('Get created users error:', error);
+    res.status(500).json({ message: 'Server error', error: error.message });
+  }
+});
+
+// @route   DELETE /api/auth/user/:id
+// @desc    Delete a user (Super Admin only)
+// @access  Private (Super Admin only)
+router.delete('/user/:id', protect, authorize('Super Admin'), async (req, res) => {
+  try {
+    const { id } = req.params;
+    
+    const user = await User.findById(id).populate('role');
+    if (!user) {
+      return res.status(404).json({ message: 'User not found' });
+    }
+
+    // Prevent deleting Super Admin
+    if (user.role?.name === 'Super Admin') {
+      return res.status(403).json({ message: 'Cannot delete Super Admin' });
+    }
+
+    await User.findByIdAndDelete(id);
+    
+    res.json({ message: 'User deleted successfully' });
+  } catch (error) {
+    console.error('Delete user error:', error);
+    res.status(500).json({ message: 'Server error', error: error.message });
+  }
+});
+
 // @route   GET /api/auth/me
 // @desc    Get current logged in user
 // @access  Private
 router.get('/me', protect, async (req, res) => {
   try {
-    const user = await User.findById(req.user._id).populate('role');
+    let user = await User.findById(req.user._id).populate('role');
+
+    // Sync semester/year if needed based on elapsed time
+    await performSemesterSync(user);
+
+    user = await User.findById(req.user._id).populate('role');
+
     res.json({
       _id: user._id,
       name: user.name,
@@ -292,6 +450,8 @@ router.get('/me', protect, async (req, res) => {
       coordinatorId: user.coordinatorId,
       department: user.department,
       year: user.year,
+      semester: user.semester,
+      semesterTerm: user.semester % 2 === 0 ? 'even' : 'odd',
       lastLogin: user.lastLogin
     });
   } catch (error) {
