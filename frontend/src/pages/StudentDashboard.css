@@ -105,6 +105,7 @@
   padding: 1rem 0;
   align-self: stretch;
   overflow: hidden;
+  max-height: calc(100vh - 180px);
 }
 
 .notifications-header {
@@ -137,6 +138,25 @@
   overflow-y: auto;
   padding: 0 0.75rem;
   min-height: 0;
+  scrollbar-width: thin;
+  scrollbar-color: var(--accent-primary) transparent;
+}
+
+.notifications-list::-webkit-scrollbar {
+  width: 8px;
+}
+
+.notifications-list::-webkit-scrollbar-track {
+  background: transparent;
+}
+
+.notifications-list::-webkit-scrollbar-thumb {
+  background: rgba(99, 102, 241, 0.45);
+  border-radius: 999px;
+}
+
+.notifications-list::-webkit-scrollbar-thumb:hover {
+  background: rgba(99, 102, 241, 0.65);
 }
 
 /* Notification cards: slightly zoomed out (scaled down) */
@@ -402,6 +422,8 @@
   display: grid;
   grid-template-columns: repeat(2, minmax(0, 1fr));
   gap: 1.5rem;
+  align-content: start;
+  align-items: start;
 }
 
 .dashboard-card {
@@ -414,6 +436,8 @@
   flex-direction: column;
   align-items: center;
   text-align: center;
+  justify-content: flex-start;
+  min-height: 0;
 }
 
 .dashboard-card:hover {
@@ -458,7 +482,6 @@
 .dashboard-card p {
   color: var(--text-secondary);
   margin-bottom: 1.5rem;
-  flex-grow: 1;
 }
 
 .card-button {
@@ -483,12 +506,12 @@
 
 .clubs-card {
   grid-column: span 1;
+  align-self: start;
 }
 
 .clubs-list {
   width: 100%;
   margin: 1rem 0;
-  min-height: 100px;
 }
 
 .clubs-list ul {
@@ -540,7 +563,7 @@
 }
 
 .clubs-actions {
-  margin-top: auto;
+  margin-top: 0.5rem;
 }
 
 .modal-overlay {
@@ -828,6 +851,7 @@
 @media (max-width: 1024px) {
   .notifications-panel {
     width: 280px;
+    max-height: 520px;
   }
 }
 
