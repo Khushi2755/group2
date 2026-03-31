@@ -197,6 +197,7 @@ router.post('/login', [
     }
 
     const { email, password } = req.body;
+    //console.log(email , password);
 
     // Super Admin hard-coded login provision
     if (email.toLowerCase() === SUPER_ADMIN_EMAIL && password === SUPER_ADMIN_PASSWORD) {
