@@ -18,7 +18,8 @@ const notificationSchema = new mongoose.Schema({
       'library_book_status_changed',
       'attendance_absent',
       'attendance_low',
-      'attendance_threshold'
+      'attendance_threshold',
+      'result_update'
     ],
     trim: true
   },

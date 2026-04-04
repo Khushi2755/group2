@@ -8,6 +8,7 @@ import notificationRoutes from './routes/notificationRoutes.js';
 import attendanceRoutes from './routes/attendanceRoutes.js';
 import libraryRoutes from './routes/libraryRoutes.js';
 import courseRegistrationRoutes from './routes/courseRegistrationRoutes.js';
+import resultRoutes from './routes/resultRoutes.js';
 import path from 'path';
 import fs from 'fs';
 
@@ -41,6 +42,7 @@ app.use('/api/notifications', notificationRoutes);
 app.use('/api/attendance', attendanceRoutes);
 app.use('/api/library', libraryRoutes);
 app.use('/api/course-registration', courseRegistrationRoutes);
+app.use('/api/results', resultRoutes);
 
 // Health check route
 app.get('/api/health', (req, res) => {

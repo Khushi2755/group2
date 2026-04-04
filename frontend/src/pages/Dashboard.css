@@ -28,6 +28,8 @@
   background: linear-gradient(135deg, #4f46e5, #6366f1);
   box-shadow: 0 8px 20px rgba(99, 102, 241, 0.35);
   transition: transform 0.2s ease, opacity 0.2s ease;
+  min-height: 48px;
+  padding: 0.8rem 1.1rem;
 }
 
 .attendance-form button:hover {
@@ -302,8 +304,39 @@
 .attendance-form .form-row > button {
   min-height: 44px;
 }
+
+.attendance-actions {
+  grid-column: 1 / -1;
+  display: flex;
+  flex-wrap: wrap;
+  gap: 0.85rem;
+  align-items: center;
+  justify-content: flex-start;
+}
+
+.attendance-actions button {
+  flex: 0 0 auto;
+  min-width: 160px;
+  max-width: 220px;
+}
+
+.attendance-secondary-button {
+  background: linear-gradient(135deg, #6366f1, #818cf8);
+}
+
+.attendance-outline-button {
+  background: transparent;
+  color: #4338ca;
+  border: 1px solid rgba(67, 56, 202, 0.25);
+  box-shadow: none;
+}
+
+.attendance-outline-button:hover {
+  background: rgba(99, 102, 241, 0.08);
+}
 .scroll-table {
   max-height: 320px;
+  overflow-x: auto;
   overflow-y: auto;
   border: 2px solid var(--border-color);
   border-radius: 12px;
@@ -315,6 +348,11 @@
   min-width: 0;
   table-layout: fixed;
   font-size: 1rem;
+}
+
+.attendance-history-table {
+  min-width: 980px;
+  table-layout: auto;
 }
 
 .history-table th,
@@ -367,6 +405,78 @@
   position: sticky;
   top: 0;
   z-index: 1;
+}
+
+.attendance-table thead tr {
+  background: linear-gradient(90deg, #4338ca, #6366f1);
+}
+
+.attendance-table th {
+  background: transparent;
+  color: #ffffff;
+}
+
+.attendance-table td {
+  color: #0f172a;
+}
+
+.attendance-history-table th,
+.attendance-history-table td {
+  overflow: visible;
+  text-overflow: clip;
+  white-space: nowrap;
+}
+
+.attendance-history-table th:nth-child(1),
+.attendance-history-table td:nth-child(1) {
+  min-width: 120px;
+}
+
+.attendance-history-table th:nth-child(2),
+.attendance-history-table td:nth-child(2) {
+  min-width: 180px;
+}
+
+.attendance-history-table th:nth-child(3),
+.attendance-history-table td:nth-child(3) {
+  min-width: 140px;
+}
+
+.attendance-history-table th:nth-child(4),
+.attendance-history-table td:nth-child(4) {
+  min-width: 100px;
+}
+
+.attendance-history-table th:nth-child(5),
+.attendance-history-table td:nth-child(5) {
+  min-width: 120px;
+}
+
+.attendance-history-table th:nth-child(6),
+.attendance-history-table td:nth-child(6) {
+  min-width: 120px;
+}
+
+.attendance-history-table th:nth-child(7),
+.attendance-history-table td:nth-child(7) {
+  min-width: 220px;
+}
+
+.attendance-history-table th:nth-child(8),
+.attendance-history-table td:nth-child(8) {
+  min-width: 110px;
+}
+
+.attendance-table tbody tr {
+  background: rgba(255, 255, 255, 0.72);
+}
+
+.attendance-table tbody tr:nth-child(even) {
+  background: rgba(248, 250, 252, 0.88);
+}
+
+.attendance-table tbody tr:hover {
+  background: rgba(224, 231, 255, 0.95);
 }
 
 .history-table tr:nth-child(even) {
@@ -451,5 +561,19 @@
 
   .info-cards {
     grid-template-columns: 1fr;
+  }
+
+  .attendance-form {
+    grid-template-columns: 1fr;
+  }
+
+  .attendance-actions {
+    flex-direction: column;
+  }
+
+  .attendance-actions button {
+    width: 100%;
+    flex: 1 1 auto;
+    max-width: none;
   }
 }

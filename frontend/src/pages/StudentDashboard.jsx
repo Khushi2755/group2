@@ -143,9 +143,9 @@ const StudentDashboard = () => {
             <div className="card-icon results">
               <FiAward size={32} />
             </div>
-            <h3>Results</h3>
-            <p>View your academic results and grades</p>
-            <button className="card-button">View Results</button>
+            <h3 style={{ color : 'black' }}>Results</h3>
+            <p style={{ color : 'black' }}>View your academic results and grades</p>
+            <button className="card-button" onClick={() => navigate('/student/results')}>View Results</button>
           </div>
 
           {/* Attendance Card */}
@@ -153,7 +153,7 @@ const StudentDashboard = () => {
             <div className="card-icon attendance">
               <FiCalendar size={32} />
             </div>
-            <h3>Attendance</h3>
+            <h3 style={{ color : 'black' }}>Attendance</h3>
             {attendanceLoading ? (
               <p>Loading attendance...</p>
             ) : attendanceStats ? (

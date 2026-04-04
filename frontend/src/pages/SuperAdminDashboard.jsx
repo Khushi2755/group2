@@ -36,6 +36,7 @@ const SuperAdminDashboard = () => {
   const [courses, setCourses] = useState([]);
   const [facultySearch, setFacultySearch] = useState('');
   const [facultyDeptFilter, setFacultyDeptFilter] = useState('');
+  const [editingCourseId, setEditingCourseId] = useState(null);
 
   // Fetch history from database
   useEffect(() => {
@@ -123,6 +124,12 @@ const SuperAdminDashboard = () => {
 
   const handleCourseSubmit = async (e) => {
     e.preventDefault();
+    
+    // If editing, use update handler instead
+    if (editingCourseId) {
+      return handleUpdateCourse(e);
+    }
+    
     setError('');
     setMessage('');
     setLoading(true);
@@ -174,6 +181,70 @@ const SuperAdminDashboard = () => {
     );
   };
 
+  const handleEditCourse = (course) => {
+    setEditingCourseId(course._id);
+    setCourseName(course.courseName);
+    setCourseCode(course.courseCode);
+    setCourseYear(course.year);
+    setCourseSemester(course.semester);
+    setCourseDepartment(course.department);
+    setCourseCredits(course.credits);
+    setCourseDescription(course.description || '');
+    setSelectedFaculty(course.faculty ? course.faculty.map(f => f._id) : []);
+    setMessage('');
+    setError('');
+    // Scroll to top of form
+    window.scrollTo({ top: 0, behavior: 'smooth' });
+  };
+
+  const handleCancelEdit = () => {
+    setEditingCourseId(null);
+    setCourseName('');
+    setCourseCode('');
+    setCourseYear(1);
+    setCourseSemester(1);
+    setCourseDepartment('ECE');
+    setCourseCredits(3);
+    setCourseDescription('');
+    setSelectedFaculty([]);
+    setMessage('');
+    setError('');
+  };
+
+  const handleUpdateCourse = async (e) => {
+    e.preventDefault();
+    setError('');
+    setMessage('');
+    setLoading(true);
+
+    if (!courseName || !courseCode) {
+      setError('Course name and code are required');
+      setLoading(false);
+      return;
+    }
+
+    try {
+      await axios.put(`/course-registration/${editingCourseId}`, {
+        courseName,
+        courseCode,
+        year: courseYear,
+        semester: courseSemester,
+        department: courseDepartment,
+        faculty: selectedFaculty,
+        credits: courseCredits,
+        description: courseDescription
+      });
+
+      setMessage('Course updated successfully');
+      handleCancelEdit();
+      await fetchCourses();
+    } catch (err) {
+      setError(err.response?.data?.message || 'Failed to update course');
+    } finally {
+      setLoading(false);
+    }
+  };
+
   const deleteCourse = async (courseId) => {
     if (!window.confirm('Are you sure you want to delete this course?')) return;
     
@@ -203,9 +274,9 @@ const SuperAdminDashboard = () => {
       <TopNavbar />
       <div className="dashboard-content">
         <div className="welcome-card">
-          <h1>Super Admin Panel</h1>
-          <p className="role-badge">Super Admin</p>
-          <p>Use this panel to create teacher, coordinator and librarian accounts.</p>
+          <h1 style={{ color : 'black' }} >Super Admin Panel</h1>
+          <p className="role-badge" style={{ color : 'black' }}>Super Admin</p>
+          <p style={{ color : 'black' }}>Use this panel to create teacher, coordinator and librarian accounts.</p>
         </div>
 
         <div className="card-grid" style={{ margin: '15px 0' }}>
@@ -236,14 +307,19 @@ const SuperAdminDashboard = () => {
           </div>
         ) : activeRole === 'Course Registration' ? (
           <div className="popup-overlay" onClick={() => setActiveRole(null)}>
-            <div className="popup-content" onClick={(e) => e.stopPropagation()} style={{ maxWidth: '800px' }}>
+            <div className="popup-content" onClick={(e) => e.stopPropagation()} style={{ maxWidth: '800px', maxHeight: '90vh', overflowY: 'auto', display: 'flex', flexDirection: 'column' }}>
               <button className="popup-close" onClick={() => setActiveRole(null)}>
                 ✕
               </button>
-              <h2>Course Registration</h2>
-              <p>Register courses for each year and semester</p>
+              <h2>{editingCourseId ? 'Edit Course' : 'Course Registration'}</h2>
+              <p>{editingCourseId ? 'Update course details and faculty assignments' : 'Register courses for each year and semester'}</p>
+              {editingCourseId && (
+                <div style={{ padding: '10px', backgroundColor: '#fff3cd', border: '1px solid #ffc107', borderRadius: '8px', marginBottom: '15px' }}>
+                  <strong>Editing Mode:</strong> You are currently editing a course. Click "Cancel" to return to registration mode.
+                </div>
+              )}
 
-              <form className="auth-form" onSubmit={handleCourseSubmit} style={{ maxWidth: '100%', overflowY: 'auto', maxHeight: '500px' }}>
+              <form className="auth-form" onSubmit={handleCourseSubmit} style={{ maxWidth: '100%' }}>
                 <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: '15px' }}>
                   <div className="form-group">
                     <label>Course Name *</label>
@@ -385,9 +461,29 @@ const SuperAdminDashboard = () => {
                   </div>
                 </div>
 
-                <button type="submit" className="auth-button" disabled={loading}>
-                  {loading ? 'Registering...' : 'Register Course'}
-                </button>
+                <div style={{ display: 'flex', gap: '10px', alignItems: 'center' }}>
+                  <button type="submit" className="auth-button" disabled={loading} style={{ flex: 1 }}>
+                    {loading ? (editingCourseId ? 'Updating...' : 'Registering...') : (editingCourseId ? 'Update Course' : 'Register Course')}
+                  </button>
+                  {editingCourseId && (
+                    <button
+                      type="button"
+                      onClick={handleCancelEdit}
+                      style={{
+                        padding: '0.75rem 1.5rem',
+                        backgroundColor: '#6c757d',
+                        color: 'white',
+                        border: 'none',
+                        borderRadius: '10px',
+                        cursor: 'pointer',
+                        fontWeight: '600',
+                        transition: 'all 0.3s ease'
+                      }}
+                    >
+                      Cancel
+                    </button>
+                  )}
+                </div>
 
                 {message && <div className="success-message" style={{ marginTop: 12 }}>{message}</div>}
                 {error && <div className="error-message" style={{ marginTop: 12 }}>{error}</div>}
@@ -404,18 +500,24 @@ const SuperAdminDashboard = () => {
                     Refresh
                   </button>
                 </div>
-                <div style={{ maxHeight: '300px', overflowY: 'auto', overflowX: 'auto' }}>
-                  <table className="history-table" style={{ width: '100%', minWidth: '800px' }}>
+                <div style={{
+                  overflowX: 'scroll',
+                  border: '2px solid #dee2e6',
+                  borderRadius: '8px',
+                  backgroundColor: 'white',
+                  WebkitOverflowScrolling: 'touch'
+                }}>
+                  <table className="history-table" style={{ width: '100%', minWidth: '1000px', marginBottom: 0, tableLayout: 'auto' }}>
                     <thead>
                       <tr>
-                        <th style={{ minWidth: '150px' , color: '#000' }}>Course Name</th>
-                        <th style={{ minWidth: '100px' , color: '#000' }}>Code</th>
-                        <th style={{ minWidth: '80px' , color: '#000' }}>Year</th>
-                        <th style={{ minWidth: '80px' , color: '#000' }}>Semester</th>
-                        <th style={{ minWidth: '80px' , color: '#000' }}>Dept</th>
-                        <th style={{ minWidth: '100px' , color: '#000' }}>Credits</th>
-                        <th style={{ minWidth: '200px' , color: '#000' }}>Faculty Assigned</th>
-                        <th style={{ minWidth: '100px' , color: '#000'}}>Action</th>
+                        <th style={{ minWidth: '150px', width: '150px', color: '#000', whiteSpace: 'nowrap' }}>Course Name</th>
+                        <th style={{ minWidth: '100px', width: '100px', color: '#000', whiteSpace: 'nowrap' }}>Code</th>
+                        <th style={{ minWidth: '60px', width: '60px', color: '#000', textAlign: 'center', whiteSpace: 'nowrap' }}>Year</th>
+                        <th style={{ minWidth: '80px', width: '80px', color: '#000', textAlign: 'center', whiteSpace: 'nowrap' }}>Semester</th>
+                        <th style={{ minWidth: '60px', width: '60px', color: '#000', textAlign: 'center', whiteSpace: 'nowrap' }}>Dept</th>
+                        <th style={{ minWidth: '70px', width: '70px', color: '#000', textAlign: 'center', whiteSpace: 'nowrap' }}>Credits</th>
+                        <th style={{ minWidth: '250px', width: '250px', color: '#000', whiteSpace: 'nowrap' }}>Faculty Assigned</th>
+                        <th style={{ minWidth: '150px', width: '150px', color: '#000', textAlign: 'center', whiteSpace: 'nowrap' }}>Actions</th>
                       </tr>
                     </thead>
                     <tbody>
@@ -430,20 +532,39 @@ const SuperAdminDashboard = () => {
                             <td style={{ textAlign: 'center' }}>{course.semester}</td>
                             <td style={{ textAlign: 'center' }}>{course.department}</td>
                             <td style={{ textAlign: 'center' }}>{course.credits}</td>
-                            <td style={{ fontSize: '0.9em' }}>
+                            <td style={{ fontSize: '0.9em', whiteSpace: 'normal', wordWrap: 'break-word' }}>
                               {course.faculty && course.faculty.length > 0
                                 ? course.faculty.map(f => f.name).join(', ')
                                 : <span style={{ color: '#999', fontStyle: 'italic' }}>No faculty assigned</span>
                               }
                             </td>
                             <td style={{ textAlign: 'center' }}>
-                              <button
-                                className="remove-button"
-                                onClick={() => deleteCourse(course._id)}
-                                style={{ padding: '6px 12px', fontSize: '0.9em' }}
-                              >
-                                Delete
-                              </button>
+                              <div style={{ display: 'flex', gap: '8px', justifyContent: 'center', flexWrap: 'wrap' }}>
+                                <button
+                                  onClick={() => handleEditCourse(course)}
+                                  style={{
+                                    padding: '6px 12px',
+                                    fontSize: '0.9em',
+                                    backgroundColor: '#28a745',
+                                    color: 'white',
+                                    border: 'none',
+                                    borderRadius: '8px',
+                                    cursor: 'pointer',
+                                    transition: 'transform 0.2s ease'
+                                  }}
+                                  onMouseOver={(e) => e.target.style.transform = 'scale(1.05)'}
+                                  onMouseOut={(e) => e.target.style.transform = 'scale(1)'}
+                                >
+                                  Edit
+                                </button>
+                                <button
+                                  className="remove-button"
+                                  onClick={() => deleteCourse(course._id)}
+                                  style={{ padding: '6px 12px', fontSize: '0.9em' }}
+                                >
+                                  Delete
+                                </button>
+                              </div>
                             </td>
                           </tr>
                         ))
@@ -480,7 +601,7 @@ const SuperAdminDashboard = () => {
                 </div>
 
                 <div className="form-group">
-                  <label>Name (optional)</label>
+                  <label>Name</label>
                   <input type="text" value={name} onChange={(e) => setName(e.target.value)} />
                 </div>
 
@@ -522,7 +643,7 @@ const SuperAdminDashboard = () => {
 
         <div className="dashboard-table-wrapper">
           <h3 style={{ color: '#000' }}>History Table</h3>
-          <div className="scroll-table">
+          <div className="scroll-table" style={{ maxHeight: '400px', overflowY: 'auto', border: '2px solid var(--border-color)', borderRadius: '12px' }}>
             <table className="history-table">
               <thead>
                 <tr>

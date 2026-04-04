@@ -67,8 +67,8 @@ const Dashboard = () => {
         <TopNavbar />
         <div className="dashboard-content">
           <div className="welcome-card">
-            <h1>Welcome back, {user?.name}!</h1>
-            <p className="role-badge">{user?.role}</p>
+            <h1 style={{ color : 'black' }} >Welcome back, {user?.name}!</h1>
+            <p className="role-badge" style={{ color : 'black' }}>{user?.role}</p>
           </div>
           <div className="dashboard-message">
             <div style={{ maxWidth: 1100, margin: '20px auto' }}>
@@ -95,7 +95,7 @@ const Dashboard = () => {
       {
         title: 'Results',
         description: 'Upload/view exam scores and student results',
-        action: () => alert('Result screen coming soon'),
+        action: () => navigate('/teacher/results'),
       },
       {
         title: 'Course Materials',
@@ -109,8 +109,8 @@ const Dashboard = () => {
         <TopNavbar />
         <div className="dashboard-content">
           <div className="welcome-card">
-            <h1>Welcome back, {user?.name}!</h1>
-            <p className="role-badge">{user?.role}</p>
+            <h1 style={{ color : 'black' }} >Welcome back, {user?.name}!</h1>
+            <p className="role-badge" style={{ color : 'black' }}>{user?.role}</p>
           </div>
 
           <div className="card-grid">

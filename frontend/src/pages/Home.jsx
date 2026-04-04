@@ -17,8 +17,8 @@ const Home = () => {
         <div className="home-hero">
           <h1>Academix</h1>
           <p>
-            A modern academic management system built for students, teachers, and club coordinators.
-            Manage courses, track performance, and explore campus life in one unified platform.
+            A modern academic management system built for students, teachers, librarians, and club coordinators.
+            Manage academics, library resources, and campus life in one unified platform.
           </p>
           <div className="home-actions">
             <button className="primary-btn" onClick={() => navigate('/login')}>
@@ -40,6 +40,10 @@ const Home = () => {
             <p>Manage courses, assignments, and academic progress with clarity.</p>
           </div>
           <div className="highlight-card">
+            <h3>For Librarians</h3>
+            <p>Organize books, manage materials, and keep the library experience smooth for everyone.</p>
+          </div>
+          <div className="highlight-card">
             <h3>For Club Coordinators</h3>
             <p>Create clubs, manage members, and publish events that reach every member.</p>
           </div>
@@ -50,4 +54,3 @@ const Home = () => {
 };
 
 export default Home;
-

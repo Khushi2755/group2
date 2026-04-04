@@ -158,9 +158,9 @@ const TeacherAttendance = () => {
       <TopNavbar />
       <div className="dashboard-content">
         <div className="welcome-card">
-          <h1>Teacher Attendance</h1>
-          <p className="role-badge">{user?.name} • {user?.role}</p>
-          <p>Mark student attendance and review attendance history.</p>
+          <h1 style={{ color : 'black' }} >Teacher Attendance</h1>
+          <p className="role-badge" style={{ color : 'black' }}>{user?.name} • {user?.role}</p>
+          <p style={{ color : 'black' }}>Mark student attendance and review attendance history.</p>
         </div>
 
         <div className="attendance-section">
@@ -220,10 +220,10 @@ const TeacherAttendance = () => {
               <input type="date" value={date} onChange={(e) => setDate(e.target.value)} />
             </div>
 
-            <div className="form-row" style={{ gridColumn: 'span 2' }}>
+            <div className="form-row attendance-actions">
               <button type="button" onClick={fetchClassStudents} disabled={loadingStudents}>Load Students</button>
               <button type="submit" disabled={attendanceLoading || loadingStudents}>Save Attendance</button>
-              <button type="button" onClick={() => setStudents([])}>Clear</button>
+              <button type="button" className="attendance-secondary-button" onClick={() => setStudents([])}>Clear</button>
             </div>
 
             {attendanceError && <p className="error-message">{attendanceError}</p>}
@@ -237,7 +237,7 @@ const TeacherAttendance = () => {
             ) : students.length === 0 ? (
               <p>No students loaded.</p>
             ) : (
-              <table className="history-table">
+              <table className="history-table attendance-table">
                 <thead>
                   <tr>
                     <th>Name</th>
@@ -277,17 +277,27 @@ const TeacherAttendance = () => {
             <label>Date To</label>
             <input type="date" value={dateTo} onChange={(e) => setDateTo(e.target.value)} />
           </div>
-          <div className="form-row" style={{ gridColumn: 'span 2' }}>
+          <div className="form-row attendance-actions attendance-history-actions">
             <button onClick={fetchAttendanceHistory} disabled={historyLoading}>Apply History Filter</button>
-            <button onClick={() => { setDateFrom(''); setDateTo(''); fetchAttendanceHistory(); }} disabled={historyLoading}>Reset History</button>
-            <button onClick={() => navigate('/dashboard')}>Back to Dashboard</button>
+            <button
+              className="attendance-secondary-button"
+              onClick={() => {
+                setDateFrom('');
+                setDateTo('');
+                fetchAttendanceHistory();
+              }}
+              disabled={historyLoading}
+            >
+              Reset History
+            </button>
+            <button className="attendance-outline-button" onClick={() => navigate('/dashboard')}>Back to Dashboard</button>
           </div>
 
           {historyLoading ? (
             <p>Loading history...</p>
           ) : (
             <div className="scroll-table">
-              <table className="history-table">
+              <table className="history-table attendance-table attendance-history-table">
                 <thead>
                   <tr>
                     <th>Date</th>
