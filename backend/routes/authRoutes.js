@@ -462,3 +462,24 @@ router.get('/me', protect, async (req, res) => {
 });
 
 export default router;
+
+// @desc    Get all students
+// @route   GET /api/auth/students
+// @access  Super Admin only
+router.get('/students', protect, authorize('Super Admin'), async (req, res) => {
+  try {
+    const studentRole = await Role.findOne({ name: 'Student' });
+    if (!studentRole) {
+      return res.json([]);
+    }
+
+    const students = await User.find({ role: studentRole._id, isActive: true })
+      .select('name email studentId department year')
+      .sort({ name: 1 });
+
+    res.json(students);
+  } catch (error) {
+    console.error('Get students error:', error);
+    res.status(500).json({ message: 'Failed to fetch students' });
+  }
+});

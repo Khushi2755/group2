@@ -9,6 +9,7 @@ import attendanceRoutes from './routes/attendanceRoutes.js';
 import libraryRoutes from './routes/libraryRoutes.js';
 import courseRegistrationRoutes from './routes/courseRegistrationRoutes.js';
 import resultRoutes from './routes/resultRoutes.js';
+import electionRoutes from './routes/electionRoutes.js';
 import path from 'path';
 import fs from 'fs';
 
@@ -43,6 +44,7 @@ app.use('/api/attendance', attendanceRoutes);
 app.use('/api/library', libraryRoutes);
 app.use('/api/course-registration', courseRegistrationRoutes);
 app.use('/api/results', resultRoutes);
+app.use('/api/elections', electionRoutes);
 
 // Health check route
 app.get('/api/health', (req, res) => {

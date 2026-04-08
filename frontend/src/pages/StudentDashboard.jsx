@@ -3,7 +3,7 @@ import { useAuth } from '../context/AuthContext';
 import { useTheme } from '../context/ThemeContext';
 import { useNavigate } from 'react-router-dom';
 import axios from 'axios';
-import { FiSun, FiMoon, FiLogOut, FiBook, FiUsers, FiCalendar, FiAward, FiPlus, FiBell } from 'react-icons/fi';
+import { FiSun, FiMoon, FiLogOut, FiBook, FiUsers, FiCalendar, FiAward, FiPlus, FiBell, FiCheckCircle } from 'react-icons/fi';
 import './StudentDashboard.css';
 
 const StudentDashboard = () => {
@@ -18,10 +18,13 @@ const StudentDashboard = () => {
   const [notificationsLoading, setNotificationsLoading] = useState(true);
   const [attendanceStats, setAttendanceStats] = useState(null);
   const [attendanceLoading, setAttendanceLoading] = useState(true);
+  const [electionSummary, setElectionSummary] = useState(null);
+  const [electionLoading, setElectionLoading] = useState(true);
 
   useEffect(() => {
     fetchClubs();
     fetchAttendanceStats();
+    fetchElectionSummary();
   }, []);
 
   useEffect(() => {
@@ -81,7 +84,20 @@ const StudentDashboard = () => {
     }
   };
 
-  const myClubs = clubs.filter(club => 
+  const fetchElectionSummary = async () => {
+    setElectionLoading(true);
+    try {
+      const response = await axios.get('/elections/student-dashboard');
+      setElectionSummary(response.data);
+    } catch (error) {
+      console.error('Error fetching election summary:', error);
+      setElectionSummary({ hasElection: false, election: null });
+    } finally {
+      setElectionLoading(false);
+    }
+  };
+
+  const myClubs = clubs.filter(club =>
     club.members.some(member => member._id === user?._id || member.studentId === user?.studentId)
   );
 
@@ -180,6 +196,40 @@ const StudentDashboard = () => {
                 <button className="card-button" onClick={() => navigate('/student/library')}>Course Materials</button>
               </div>
             </div>
+          </div>
+
+          {/* Elections Card */}
+          <div className="dashboard-card election-dashboard-card">
+            <div className="card-icon" style={{ background: 'linear-gradient(135deg, #667eea 0%, #764ba2 100%)' }}>
+              <FiCheckCircle size={32} />
+            </div>
+            <h3 style={{ color: 'black' }}>Student Council Elections</h3>
+            {electionLoading ? (
+              <p style={{ color: 'black' }}>Loading election status...</p>
+            ) : electionSummary?.hasElection && electionSummary?.election ? (
+              <>
+                <p style={{ color: 'black' }}>
+                  {electionSummary.election.title}
+                </p>
+                <div className="election-dashboard-meta">
+                  <span className={`election-dashboard-badge ${electionSummary.election.isActive ? 'live' : 'inactive'}`}>
+                    {electionSummary.election.isActive ? 'Live Election' : 'Inactive'}
+                  </span>
+                  <span className="election-dashboard-posts">
+                    {electionSummary.election.posts.length} posts
+                  </span>
+                </div>
+              </>
+            ) : (
+              <p style={{ color: 'black' }}>No election available right now</p>
+            )}
+            <button
+              className="card-button"
+              onClick={() => navigate('/student/elections')}
+              disabled={!electionSummary?.hasElection && !electionLoading}
+            >
+              {electionSummary?.hasElection ? 'Open Election' : 'No Election'}
+            </button>
           </div>
 
           {/* Clubs Card */}

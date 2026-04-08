@@ -509,6 +509,46 @@
   align-self: start;
 }
 
+.election-dashboard-card .card-button:disabled {
+  opacity: 0.6;
+  cursor: not-allowed;
+  box-shadow: none;
+  transform: none;
+}
+
+.election-dashboard-meta {
+  display: flex;
+  flex-wrap: wrap;
+  justify-content: center;
+  gap: 0.6rem;
+  margin-bottom: 1rem;
+}
+
+.election-dashboard-badge,
+.election-dashboard-posts {
+  display: inline-flex;
+  align-items: center;
+  padding: 0.4rem 0.8rem;
+  border-radius: 999px;
+  font-size: 0.8rem;
+  font-weight: 700;
+}
+
+.election-dashboard-badge.live {
+  background: rgba(40, 167, 69, 0.14);
+  color: #1f7a36;
+}
+
+.election-dashboard-badge.inactive {
+  background: rgba(220, 53, 69, 0.14);
+  color: #a61e2d;
+}
+
+.election-dashboard-posts {
+  background: rgba(102, 126, 234, 0.12);
+  color: #4c51bf;
+}
+
 .clubs-list {
   width: 100%;
   margin: 1rem 0;

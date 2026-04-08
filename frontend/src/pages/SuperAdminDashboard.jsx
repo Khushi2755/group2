@@ -3,13 +3,15 @@ import axios from 'axios';
 import { useNavigate } from 'react-router-dom';
 import { useAuth } from '../context/AuthContext';
 import TopNavbar from '../components/TopNavbar';
+import ElectionManagement from './ElectionManagement';
 import './Dashboard.css';
 
 const roleCards = [
   { role: 'Teacher', label: 'Add Teacher' },
   { role: 'Club Coordinator', label: 'Add Club Coordinator' },
   { role: 'Librarian', label: 'Add Librarian' },
-  { role: 'Course Registration', label: 'Course Registration' }
+  { role: 'Course Registration', label: 'Course Registration' },
+  { role: 'Election Management', label: 'Election Management' }
 ];
 
 const SuperAdminDashboard = () => {
@@ -304,6 +306,15 @@ const SuperAdminDashboard = () => {
         {!activeRole ? (
           <div className="dashboard-message" style={{ textAlign: 'center' }}>
             Select a card above to open the create-user form.
+          </div>
+        ) : activeRole === 'Election Management' ? (
+          <div className="popup-overlay" onClick={() => setActiveRole(null)}>
+            <div className="popup-content" onClick={(e) => e.stopPropagation()} style={{ maxWidth: '1200px', maxHeight: '90vh', overflowY: 'auto' }}>
+              <button className="popup-close" onClick={() => setActiveRole(null)}>
+                ✕
+              </button>
+              <ElectionManagement />
+            </div>
           </div>
         ) : activeRole === 'Course Registration' ? (
           <div className="popup-overlay" onClick={() => setActiveRole(null)}>
