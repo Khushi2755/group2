@@ -170,18 +170,8 @@ const StudentDashboard = () => {
               <FiCalendar size={32} />
             </div>
             <h3 style={{ color : 'black' }}>Attendance</h3>
-            {attendanceLoading ? (
-              <p>Loading attendance...</p>
-            ) : attendanceStats ? (
-              <div>
-                <p>Present: {attendanceStats.present} / {attendanceStats.total}</p>
-                <p>Absent: {attendanceStats.absent}</p>
-                <p>Attendance: {attendanceStats.percent}%</p>
-              </div>
-            ) : (
-              <p>Unable to load attendance</p>
-            )}
-            <button className="card-button" onClick={fetchAttendanceStats}>Refresh</button>
+            <p style={{ color : 'black' }}>Review your course attendance details and monthly trends.</p>
+            <button className="card-button" onClick={() => navigate('/student/attendance')}>View Attendance</button>
           </div>
 
           {/* Library Card */}

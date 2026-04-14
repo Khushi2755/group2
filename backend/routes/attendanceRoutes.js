@@ -1,5 +1,6 @@
 import express from 'express';
 import Attendance from '../models/Attendance.js';
+import Result from '../models/Result.js';
 import User from '../models/User.js';
 import Role from '../models/Role.js';
 import Notification from '../models/Notification.js';
@@ -236,6 +237,96 @@ router.get('/history', protect, authorize('Teacher', 'Club Coordinator', 'Super 
     res.json(dto);
   } catch (error) {
     console.error('attendance history error:', error);
+    res.status(500).json({ message: 'Server error', error: error.message });
+  }
+});
+
+// GET /api/attendance/student/courses
+router.get('/student/courses', protect, authorize('Student'), async (req, res) => {
+  try {
+    const enrolledResults = await Result.find({ student: req.user._id })
+      .populate('course', 'courseName courseCode year semester department')
+      .sort({ enrolledAt: -1 })
+      .lean();
+
+    const courses = enrolledResults
+      .filter((item) => item.course)
+      .map((item) => ({
+        _id: item.course._id,
+        courseName: item.course.courseName,
+        courseCode: item.course.courseCode,
+        year: item.course.year,
+        semester: item.course.semester,
+        department: item.course.department
+      }));
+
+    res.json(courses);
+  } catch (error) {
+    console.error('attendance student courses error:', error);
+    res.status(500).json({ message: 'Server error', error: error.message });
+  }
+});
+
+// GET /api/attendance/student/course/:courseId
+router.get('/student/course/:courseId', protect, authorize('Student'), async (req, res) => {
+  try {
+    const { courseId } = req.params;
+    const enrolled = await Result.findOne({ student: req.user._id, course: courseId })
+      .populate('course', 'courseName courseCode year semester department')
+      .lean();
+
+    if (!enrolled || !enrolled.course) {
+      return res.status(404).json({ message: 'Course not enrolled or not found' });
+    }
+
+    const records = await Attendance.find({ student: req.user._id, course: courseId })
+      .sort({ date: 1 })
+      .lean();
+
+    const total = records.length;
+    const present = records.filter((item) => item.status === 'present').length;
+    const absent = total - present;
+    const percent = total ? Number(((present / total) * 100).toFixed(2)) : 0;
+
+    const datewise = records.map((item) => ({
+      date: item.date,
+      status: item.status
+    }));
+
+    const monthlyMap = {};
+    records.forEach((item) => {
+      const dateObj = new Date(`${item.date}T00:00:00Z`);
+      const monthKey = `${dateObj.getFullYear()}-${String(dateObj.getMonth() + 1).padStart(2, '0')}`;
+      if (!monthlyMap[monthKey]) {
+        monthlyMap[monthKey] = { monthKey, present: 0, absent: 0, total: 0 };
+      }
+      monthlyMap[monthKey].total += 1;
+      monthlyMap[monthKey][item.status] += 1;
+    });
+
+    const monthlySummary = Object.values(monthlyMap)
+      .sort((a, b) => a.monthKey.localeCompare(b.monthKey))
+      .map((item) => ({
+        month: new Date(`${item.monthKey}-01`).toLocaleString('default', { month: 'short', year: 'numeric' }),
+        present: item.present,
+        absent: item.absent,
+        total: item.total,
+        percent: item.total ? Number(((item.present / item.total) * 100).toFixed(2)) : 0
+      }));
+
+    res.json({
+      course: enrolled.course,
+      stats: {
+        total,
+        present,
+        absent,
+        percent
+      },
+      monthlySummary,
+      datewise
+    });
+  } catch (error) {
+    console.error('attendance student course detail error:', error);
     res.status(500).json({ message: 'Server error', error: error.message });
   }
 });
