@@ -7,6 +7,7 @@ import Register from './pages/Register';
 import Dashboard from './pages/Dashboard';
 import StudentDashboard from './pages/StudentDashboard';
 import StudentResults from './pages/StudentResults';
+import StudentAttendance from './pages/StudentAttendance';
 import TeacherResults from './pages/TeacherResults';
 import CoordinatorDashboardNew from './pages/CoordinatorDashboardNew';
 import ClubTypeDetails from './pages/ClubTypeDetails';
@@ -86,6 +87,14 @@ function App() {
               element={
                 <ProtectedRoute allowedRoles={['Student']}>
                   <StudentResults />
+                </ProtectedRoute>
+              }
+            />
+            <Route
+              path="/student/attendance"
+              element={
+                <ProtectedRoute allowedRoles={['Student']}>
+                  <StudentAttendance />
                 </ProtectedRoute>
               }
             />

@@ -76,6 +76,16 @@
   background: rgba(99, 102, 241, 0.06);
 }
 
+.results-table tbody tr.selected-row {
+  background: rgba(99, 102, 241, 0.12);
+}
+
+.error-text {
+  color: #dc2626;
+  margin-bottom: 1rem;
+  font-weight: 600;
+}
+
 .action-button,
 .save-button {
   background: linear-gradient(135deg, var(--accent-primary) 0%, var(--accent-hover) 100%);
@@ -136,6 +146,50 @@
   flex-direction: column;
   gap: 0.5rem;
   align-items: center;
+}
+
+.attendance-chart-section {
+  margin-top: 1.5rem;
+}
+
+.attendance-chart {
+  display: grid;
+  gap: 0.85rem;
+  margin-top: 1rem;
+}
+
+.attendance-bar-row {
+  display: grid;
+  grid-template-columns: auto 1fr auto;
+  gap: 0.75rem;
+  align-items: center;
+}
+
+.attendance-bar-label {
+  color: var(--text-secondary);
+  font-size: 0.9rem;
+  min-width: 90px;
+}
+
+.attendance-bar-track {
+  background: var(--bg-primary);
+  border: 1px solid var(--border-color);
+  border-radius: 999px;
+  height: 14px;
+  overflow: hidden;
+  width: 100%;
+}
+
+.attendance-bar-fill {
+  height: 100%;
+  background: linear-gradient(135deg, var(--accent-primary) 0%, var(--accent-hover) 100%);
+}
+
+.attendance-bar-value {
+  font-weight: 700;
+  color: var(--text-primary);
+  min-width: 50px;
+  text-align: right;
 }
 
 .marks-label {
