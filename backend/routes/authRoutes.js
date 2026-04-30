@@ -257,9 +257,8 @@ router.post('/login', [
     // Sync semester/year before responding
     await performSemesterSync(user);
 
-    // Update last login
-    user.lastLogin = new Date();
-    await user.save();
+    // Update last login using findByIdAndUpdate to avoid triggering password hash
+    await User.findByIdAndUpdate(user._id, { lastLogin: new Date() });
 
     res.json({
       _id: user._id,

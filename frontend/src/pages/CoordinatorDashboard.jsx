@@ -10,13 +10,13 @@ const CoordinatorDashboard = () => {
   const { user, logout } = useAuth();
   const { theme, toggleTheme } = useTheme();
   const navigate = useNavigate();
-  const [clubs, setClubs] = useState([]);
+  const [allClubs, setAllClubs] = useState([]);
   const [loading, setLoading] = useState(true);
   const [showAddClubModal, setShowAddClubModal] = useState(false);
   const [showAddMemberModal, setShowAddMemberModal] = useState(false);
   const [showAddEventModal, setShowAddEventModal] = useState(false);
   const [selectedClub, setSelectedClub] = useState(null);
-  const [newClub, setNewClub] = useState({ name: '', description: '' });
+  const [newClub, setNewClub] = useState({ name: '', description: '', type: 'Technical' });
   const [newMember, setNewMember] = useState({ studentId: '' });
   const [newEvent, setNewEvent] = useState({ title: '', description: '', date: '', location: '' });
 
@@ -27,16 +27,25 @@ const CoordinatorDashboard = () => {
   const fetchClubs = async () => {
     try {
       const response = await axios.get('/clubs');
-      // Filter clubs where current user is the coordinator
-      const myClubs = response.data.filter(club => 
-        club.coordinator._id === user?._id || club.coordinator.coordinatorId === user?.coordinatorId
-      );
-      setClubs(myClubs);
+      // Show all clubs, grouped by category
+      setAllClubs(response.data);
       setLoading(false);
     } catch (error) {
       console.error('Error fetching clubs:', error);
       setLoading(false);
     }
+  };
+
+  // Helper function to check if current user is coordinator of a club
+  const isMyClub = (club) => {
+    return club.coordinator._id === user?._id || club.coordinator.coordinatorId === user?.coordinatorId;
+  };
+
+  // Group clubs by type
+  const clubsByType = {
+    Technical: allClubs.filter(club => club.type === 'Technical'),
+    Cultural: allClubs.filter(club => club.type === 'Cultural'),
+    Sports: allClubs.filter(club => club.type === 'Sports')
   };
 
   const handleLogout = () => {
@@ -48,8 +57,8 @@ const CoordinatorDashboard = () => {
     e.preventDefault();
     try {
       const response = await axios.post('/clubs', newClub);
-      setClubs([...clubs, response.data]);
-      setNewClub({ name: '', description: '' });
+      setAllClubs([...allClubs, response.data]);
+      setNewClub({ name: '', description: '', type: 'Technical' });
       setShowAddClubModal(false);
     } catch (error) {
       alert(error.response?.data?.message || 'Failed to create club');
@@ -61,7 +70,7 @@ const CoordinatorDashboard = () => {
     
     try {
       await axios.delete(`/clubs/${clubId}`);
-      setClubs(clubs.filter(club => club._id !== clubId));
+      setAllClubs(allClubs.filter(club => club._id !== clubId));
     } catch (error) {
       alert(error.response?.data?.message || 'Failed to delete club');
     }
@@ -135,7 +144,7 @@ const CoordinatorDashboard = () => {
         </div>
 
         <div className="clubs-header">
-          <h2>My Clubs</h2>
+          <h2>All Clubs</h2>
           <button className="add-club-button" onClick={() => setShowAddClubModal(true)}>
             <FiPlus size={20} />
             Add New Club
@@ -144,98 +153,327 @@ const CoordinatorDashboard = () => {
 
         {loading ? (
           <p>Loading clubs...</p>
-        ) : clubs.length === 0 ? (
+        ) : allClubs.length === 0 ? (
           <div className="no-clubs">
-            <p>You haven't created any clubs yet. Create your first club!</p>
+            <p>No clubs available yet. Create the first club!</p>
           </div>
         ) : (
-          <div className="clubs-grid">
-            {clubs.map(club => (
-              <div key={club._id} className="club-card">
-                <div className="club-header">
-                  <h3>{club.name}</h3>
-                  <button 
-                    className="delete-club-btn"
-                    onClick={() => handleDeleteClub(club._id)}
-                  >
-                    <FiTrash2 size={18} />
-                  </button>
-                </div>
-                <p className="club-description">{club.description || 'No description'}</p>
-                
-                <div className="club-section">
-                  <div className="section-header">
-                    <FiUsers size={18} />
-                    <span>Members ({club.members?.length || 0})</span>
-                  </div>
-                  <div className="members-list">
-                    {club.members && club.members.length > 0 ? (
-                      club.members.map(member => (
-                        <div key={member._id} className="member-item">
-                          <span>{member.name} ({member.studentId})</span>
-                          <button 
-                            onClick={() => handleDeleteMember(club._id, member._id)}
-                            className="remove-btn"
+          <>
+            {/* Technical Clubs */}
+            {clubsByType.Technical.length > 0 && (
+              <div className="club-category-section">
+                <h3 className="category-title">Technical Clubs</h3>
+                <div className="clubs-grid">
+                  {clubsByType.Technical.map(club => (
+                    <div key={club._id} className={`club-card ${isMyClub(club) ? 'my-club' : 'other-club'}`}>
+                      <div className="club-header">
+                        <h3>{club.name}</h3>
+                        {isMyClub(club) && (
+                          <button
+                            className="delete-club-btn"
+                            onClick={() => handleDeleteClub(club._id)}
                           >
-                            <FiX size={16} />
+                            <FiTrash2 size={18} />
                           </button>
+                        )}
+                      </div>
+                      <p className="club-description">{club.description || 'No description'}</p>
+                      <p className="coordinator-info">Coordinator: {club.coordinator.name}</p>
+                      
+                      <div className="club-section">
+                        <div className="section-header">
+                          <FiUsers size={18} />
+                          <span>Members ({club.members?.length || 0})</span>
                         </div>
-                      ))
-                    ) : (
-                      <p className="empty-state">No members yet</p>
-                    )}
-                  </div>
-                  <button 
-                    className="action-btn"
-                    onClick={() => {
-                      setSelectedClub(club);
-                      setShowAddMemberModal(true);
-                    }}
-                  >
-                    <FiPlus size={16} />
-                    Add Member
-                  </button>
-                </div>
+                        <div className="members-list">
+                          {club.members && club.members.length > 0 ? (
+                            club.members.map(member => (
+                              <div key={member._id} className="member-item">
+                                <span>{member.name} ({member.studentId})</span>
+                                {isMyClub(club) && (
+                                  <button
+                                    onClick={() => handleDeleteMember(club._id, member._id)}
+                                    className="remove-btn"
+                                  >
+                                    <FiX size={16} />
+                                  </button>
+                                )}
+                              </div>
+                            ))
+                          ) : (
+                            <p className="empty-state">No members yet</p>
+                          )}
+                        </div>
+                        {isMyClub(club) && (
+                          <button
+                            className="action-btn"
+                            onClick={() => {
+                              setSelectedClub(club);
+                              setShowAddMemberModal(true);
+                            }}
+                          >
+                            <FiPlus size={16} />
+                            Add Member
+                          </button>
+                        )}
+                      </div>
 
-                <div className="club-section">
-                  <div className="section-header">
-                    <FiCalendar size={18} />
-                    <span>Events ({club.events?.length || 0})</span>
-                  </div>
-                  <div className="events-list">
-                    {club.events && club.events.length > 0 ? (
-                      club.events.map((event, index) => (
-                        <div key={index} className="event-item">
-                          <div>
-                            <strong>{event.title}</strong>
-                            <p>{new Date(event.date).toLocaleDateString()} • {event.location}</p>
-                          </div>
-                          <button 
-                            onClick={() => handleDeleteEvent(club._id, index)}
-                            className="remove-btn"
-                          >
-                            <FiX size={16} />
-                          </button>
+                      <div className="club-section">
+                        <div className="section-header">
+                          <FiCalendar size={18} />
+                          <span>Events ({club.events?.length || 0})</span>
                         </div>
-                      ))
-                    ) : (
-                      <p className="empty-state">No events yet</p>
-                    )}
-                  </div>
-                  <button 
-                    className="action-btn"
-                    onClick={() => {
-                      setSelectedClub(club);
-                      setShowAddEventModal(true);
-                    }}
-                  >
-                    <FiPlus size={16} />
-                    Add Event
-                  </button>
+                        <div className="events-list">
+                          {club.events && club.events.length > 0 ? (
+                            club.events.map((event, index) => (
+                              <div key={index} className="event-item">
+                                <div>
+                                  <strong>{event.title}</strong>
+                                  <p>{new Date(event.date).toLocaleDateString()} • {event.location}</p>
+                                </div>
+                                {isMyClub(club) && (
+                                  <button
+                                    onClick={() => handleDeleteEvent(club._id, index)}
+                                    className="remove-btn"
+                                  >
+                                    <FiX size={16} />
+                                  </button>
+                                )}
+                              </div>
+                            ))
+                          ) : (
+                            <p className="empty-state">No events yet</p>
+                          )}
+                        </div>
+                        {isMyClub(club) && (
+                          <button
+                            className="action-btn"
+                            onClick={() => {
+                              setSelectedClub(club);
+                              setShowAddEventModal(true);
+                            }}
+                          >
+                            <FiPlus size={16} />
+                            Add Event
+                          </button>
+                        )}
+                      </div>
+                    </div>
+                  ))}
                 </div>
               </div>
-            ))}
-          </div>
+            )}
+
+            {/* Cultural Clubs */}
+            {clubsByType.Cultural.length > 0 && (
+              <div className="club-category-section">
+                <h3 className="category-title">Cultural Clubs</h3>
+                <div className="clubs-grid">
+                  {clubsByType.Cultural.map(club => (
+                    <div key={club._id} className={`club-card ${isMyClub(club) ? 'my-club' : 'other-club'}`}>
+                      <div className="club-header">
+                        <h3>{club.name}</h3>
+                        {isMyClub(club) && (
+                          <button
+                            className="delete-club-btn"
+                            onClick={() => handleDeleteClub(club._id)}
+                          >
+                            <FiTrash2 size={18} />
+                          </button>
+                        )}
+                      </div>
+                      <p className="club-description">{club.description || 'No description'}</p>
+                      <p className="coordinator-info">Coordinator: {club.coordinator.name}</p>
+                      
+                      <div className="club-section">
+                        <div className="section-header">
+                          <FiUsers size={18} />
+                          <span>Members ({club.members?.length || 0})</span>
+                        </div>
+                        <div className="members-list">
+                          {club.members && club.members.length > 0 ? (
+                            club.members.map(member => (
+                              <div key={member._id} className="member-item">
+                                <span>{member.name} ({member.studentId})</span>
+                                {isMyClub(club) && (
+                                  <button
+                                    onClick={() => handleDeleteMember(club._id, member._id)}
+                                    className="remove-btn"
+                                  >
+                                    <FiX size={16} />
+                                  </button>
+                                )}
+                              </div>
+                            ))
+                          ) : (
+                            <p className="empty-state">No members yet</p>
+                          )}
+                        </div>
+                        {isMyClub(club) && (
+                          <button
+                            className="action-btn"
+                            onClick={() => {
+                              setSelectedClub(club);
+                              setShowAddMemberModal(true);
+                            }}
+                          >
+                            <FiPlus size={16} />
+                            Add Member
+                          </button>
+                        )}
+                      </div>
+
+                      <div className="club-section">
+                        <div className="section-header">
+                          <FiCalendar size={18} />
+                          <span>Events ({club.events?.length || 0})</span>
+                        </div>
+                        <div className="events-list">
+                          {club.events && club.events.length > 0 ? (
+                            club.events.map((event, index) => (
+                              <div key={index} className="event-item">
+                                <div>
+                                  <strong>{event.title}</strong>
+                                  <p>{new Date(event.date).toLocaleDateString()} • {event.location}</p>
+                                </div>
+                                {isMyClub(club) && (
+                                  <button
+                                    onClick={() => handleDeleteEvent(club._id, index)}
+                                    className="remove-btn"
+                                  >
+                                    <FiX size={16} />
+                                  </button>
+                                )}
+                              </div>
+                            ))
+                          ) : (
+                            <p className="empty-state">No events yet</p>
+                          )}
+                        </div>
+                        {isMyClub(club) && (
+                          <button
+                            className="action-btn"
+                            onClick={() => {
+                              setSelectedClub(club);
+                              setShowAddEventModal(true);
+                            }}
+                          >
+                            <FiPlus size={16} />
+                            Add Event
+                          </button>
+                        )}
+                      </div>
+                    </div>
+                  ))}
+                </div>
+              </div>
+            )}
+
+            {/* Sports Clubs */}
+            {clubsByType.Sports.length > 0 && (
+              <div className="club-category-section">
+                <h3 className="category-title">Sports Clubs</h3>
+                <div className="clubs-grid">
+                  {clubsByType.Sports.map(club => (
+                    <div key={club._id} className={`club-card ${isMyClub(club) ? 'my-club' : 'other-club'}`}>
+                      <div className="club-header">
+                        <h3>{club.name}</h3>
+                        {isMyClub(club) && (
+                          <button
+                            className="delete-club-btn"
+                            onClick={() => handleDeleteClub(club._id)}
+                          >
+                            <FiTrash2 size={18} />
+                          </button>
+                        )}
+                      </div>
+                      <p className="club-description">{club.description || 'No description'}</p>
+                      <p className="coordinator-info">Coordinator: {club.coordinator.name}</p>
+                      
+                      <div className="club-section">
+                        <div className="section-header">
+                          <FiUsers size={18} />
+                          <span>Members ({club.members?.length || 0})</span>
+                        </div>
+                        <div className="members-list">
+                          {club.members && club.members.length > 0 ? (
+                            club.members.map(member => (
+                              <div key={member._id} className="member-item">
+                                <span>{member.name} ({member.studentId})</span>
+                                {isMyClub(club) && (
+                                  <button
+                                    onClick={() => handleDeleteMember(club._id, member._id)}
+                                    className="remove-btn"
+                                  >
+                                    <FiX size={16} />
+                                  </button>
+                                )}
+                              </div>
+                            ))
+                          ) : (
+                            <p className="empty-state">No members yet</p>
+                          )}
+                        </div>
+                        {isMyClub(club) && (
+                          <button
+                            className="action-btn"
+                            onClick={() => {
+                              setSelectedClub(club);
+                              setShowAddMemberModal(true);
+                            }}
+                          >
+                            <FiPlus size={16} />
+                            Add Member
+                          </button>
+                        )}
+                      </div>
+
+                      <div className="club-section">
+                        <div className="section-header">
+                          <FiCalendar size={18} />
+                          <span>Events ({club.events?.length || 0})</span>
+                        </div>
+                        <div className="events-list">
+                          {club.events && club.events.length > 0 ? (
+                            club.events.map((event, index) => (
+                              <div key={index} className="event-item">
+                                <div>
+                                  <strong>{event.title}</strong>
+                                  <p>{new Date(event.date).toLocaleDateString()} • {event.location}</p>
+                                </div>
+                                {isMyClub(club) && (
+                                  <button
+                                    onClick={() => handleDeleteEvent(club._id, index)}
+                                    className="remove-btn"
+                                  >
+                                    <FiX size={16} />
+                                  </button>
+                                )}
+                              </div>
+                            ))
+                          ) : (
+                            <p className="empty-state">No events yet</p>
+                          )}
+                        </div>
+                        {isMyClub(club) && (
+                          <button
+                            className="action-btn"
+                            onClick={() => {
+                              setSelectedClub(club);
+                              setShowAddEventModal(true);
+                            }}
+                          >
+                            <FiPlus size={16} />
+                            Add Event
+                          </button>
+                        )}
+                      </div>
+                    </div>
+                  ))}
+                </div>
+              </div>
+            )}
+          </>
         )}
       </div>
 
@@ -254,6 +492,18 @@ const CoordinatorDashboard = () => {
                   required
                   placeholder="e.g., Basketball Club"
                 />
+              </div>
+              <div className="form-group">
+                <label>Club Type *</label>
+                <select
+                  value={newClub.type}
+                  onChange={(e) => setNewClub({ ...newClub, type: e.target.value })}
+                  required
+                >
+                  <option value="Technical">Technical</option>
+                  <option value="Cultural">Cultural</option>
+                  <option value="Sports">Sports</option>
+                </select>
               </div>
               <div className="form-group">
                 <label>Description</label>

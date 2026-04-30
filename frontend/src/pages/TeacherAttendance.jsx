@@ -116,6 +116,10 @@ const TeacherAttendance = () => {
       if (res.data.absentCount >= 5) {
         setAttendanceMessage(`${res.data.message} (High absent count: ${res.data.absentCount})`);
       }
+      // Reset students list to allow marking attendance for another subject
+      setStudents([]);
+      setSelectedCourse('');
+      // Fetch updated history
       await fetchAttendanceHistory();
     } catch (error) {
       setAttendanceError(error.response?.data?.message || 'Failed to submit attendance.');
@@ -131,10 +135,7 @@ const TeacherAttendance = () => {
   const fetchAttendanceHistory = async () => {
     setHistoryLoading(true);
     try {
-      if (!year && !branch && !dateFrom && !dateTo && !selectedCourse) {
-        setHistory([]);
-        return;
-      }
+      // Allow fetching history even without filters to show all records
       const params = {
         year: year || undefined,
         branch: branch?.trim() || undefined,

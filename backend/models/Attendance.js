@@ -40,7 +40,9 @@ const attendanceSchema = new mongoose.Schema({
   timestamps: true
 });
 
-attendanceSchema.index({ student: 1, date: 1, course: 1 });
+// Unique compound index: a student can only have one attendance record per date per course
+// This allows multiple attendance records per day if they're for different courses
+attendanceSchema.index({ student: 1, date: 1, course: 1 }, { unique: true, name: 'student_1_date_1_course_1_unique' });
 
 const Attendance = mongoose.model('Attendance', attendanceSchema);
 
