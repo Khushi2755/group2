@@ -17,6 +17,7 @@ import Library from './pages/Library';
 import AdminLibrary from './pages/AdminLibrary';
 import TeacherAttendance from './pages/TeacherAttendance';
 import Elections from './pages/Elections';
+import Nominations from './pages/Nominations';
 
 function App() {
   return (
@@ -103,6 +104,14 @@ function App() {
               element={
                 <ProtectedRoute allowedRoles={['Student']}>
                   <Elections />
+                </ProtectedRoute>
+              }
+            />
+            <Route
+              path="/student/nominations"
+              element={
+                <ProtectedRoute allowedRoles={['Student']}>
+                  <Nominations />
                 </ProtectedRoute>
               }
             />

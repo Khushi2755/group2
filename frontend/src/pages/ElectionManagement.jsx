@@ -20,6 +20,8 @@ const ElectionManagement = () => {
 
   // Form states
   const [title, setTitle] = useState('');
+  const [nominationStartDate, setNominationStartDate] = useState('');
+  const [nominationEndDate, setNominationEndDate] = useState('');
   const [startDate, setStartDate] = useState('');
   const [endDate, setEndDate] = useState('');
   const [selectedStudent, setSelectedStudent] = useState('');
@@ -56,7 +58,7 @@ const ElectionManagement = () => {
     setError('');
     setMessage('');
 
-    if (!title || !startDate || !endDate) {
+    if (!title || !nominationStartDate || !nominationEndDate || !startDate || !endDate) {
       setError('Please fill all fields');
       return;
     }
@@ -64,6 +66,8 @@ const ElectionManagement = () => {
     try {
       await axios.post('/elections', {
         title,
+        nominationStartDate,
+        nominationEndDate,
         startDate,
         endDate
       });
@@ -71,6 +75,8 @@ const ElectionManagement = () => {
       setMessage('Election created successfully!');
       setShowCreateModal(false);
       setTitle('');
+      setNominationStartDate('');
+      setNominationEndDate('');
       setStartDate('');
       setEndDate('');
       await fetchElections();
@@ -359,18 +365,40 @@ const ElectionManagement = () => {
               </div>
 
               <div className="form-group">
-                <label>Start Date & Time *</label>
+                <label>Nomination Start Date & Time *</label>
                 <input
                   type="datetime-local"
-                  value={startDate}
-                  onChange={(e) => setStartDate(e.target.value)}
+                  value={nominationStartDate}
+                  onChange={(e) => setNominationStartDate(e.target.value)}
                   min={getMinDateTime()}
                   required
                 />
               </div>
 
               <div className="form-group">
-                <label>End Date & Time *</label>
+                <label>Nomination End Date & Time *</label>
+                <input
+                  type="datetime-local"
+                  value={nominationEndDate}
+                  onChange={(e) => setNominationEndDate(e.target.value)}
+                  min={nominationStartDate || getMinDateTime()}
+                  required
+                />
+              </div>
+
+              <div className="form-group">
+                <label>Voting Start Date & Time *</label>
+                <input
+                  type="datetime-local"
+                  value={startDate}
+                  onChange={(e) => setStartDate(e.target.value)}
+                  min={nominationEndDate || getMinDateTime()}
+                  required
+                />
+              </div>
+
+              <div className="form-group">
+                <label>Voting End Date & Time *</label>
                 <input
                   type="datetime-local"
                   value={endDate}

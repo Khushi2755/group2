@@ -120,13 +120,21 @@ const electionSchema = new mongoose.Schema({
     type: Boolean,
     default: false
   },
+  nominationStartDate: {
+    type: Date,
+    required: [true, 'Please provide nomination start date']
+  },
+  nominationEndDate: {
+    type: Date,
+    required: [true, 'Please provide nomination end date']
+  },
   startDate: {
     type: Date,
-    required: [true, 'Please provide start date']
+    required: [true, 'Please provide voting start date']
   },
   endDate: {
     type: Date,
-    required: [true, 'Please provide end date']
+    required: [true, 'Please provide voting end date']
   },
   posts: [postSchema],
   createdBy: {
@@ -138,16 +146,34 @@ const electionSchema = new mongoose.Schema({
   timestamps: true
 });
 
-// Validate that endDate is after startDate
+// Validate dates
 electionSchema.pre('save', function(next) {
+  if (this.nominationEndDate <= this.nominationStartDate) {
+    next(new Error('Nomination end date must be after nomination start date'));
+  }
   if (this.endDate <= this.startDate) {
-    next(new Error('End date must be after start date'));
+    next(new Error('Voting end date must be after voting start date'));
+  }
+  if (this.startDate < this.nominationEndDate) {
+    next(new Error('Voting start date must be after nomination end date'));
   }
   next();
 });
 
-// Method to check if election is currently active
+// Method to check if election is currently active (either nomination or voting phase)
 electionSchema.methods.isCurrentlyActive = function() {
+  const now = new Date();
+  return this.isActive && now >= this.nominationStartDate && now <= this.endDate;
+};
+
+// Method to check if nomination phase is active
+electionSchema.methods.isNominationPhaseActive = function() {
+  const now = new Date();
+  return this.isActive && now >= this.nominationStartDate && now <= this.nominationEndDate;
+};
+
+// Method to check if voting phase is active
+electionSchema.methods.isVotingPhaseActive = function() {
   const now = new Date();
   return this.isActive && now >= this.startDate && now <= this.endDate;
 };

@@ -30,18 +30,28 @@ const serializeElectionForUser = (election, userId) => {
 // @access  Super Admin only
 router.post('/', protect, authorize('Super Admin'), async (req, res) => {
   try {
-    const { title, startDate, endDate } = req.body;
+    const { title, nominationStartDate, nominationEndDate, startDate, endDate } = req.body;
 
-    if (!title || !startDate || !endDate) {
-      return res.status(400).json({ message: 'Please provide title, start date, and end date' });
+    if (!title || !nominationStartDate || !nominationEndDate || !startDate || !endDate) {
+      return res.status(400).json({ message: 'Please provide title, nomination dates, and voting dates' });
     }
 
     // Validate dates
+    const nomStart = new Date(nominationStartDate);
+    const nomEnd = new Date(nominationEndDate);
     const start = new Date(startDate);
     const end = new Date(endDate);
     
+    if (nomEnd <= nomStart) {
+      return res.status(400).json({ message: 'Nomination end date must be after nomination start date' });
+    }
+    
     if (end <= start) {
-      return res.status(400).json({ message: 'End date must be after start date' });
+      return res.status(400).json({ message: 'Voting end date must be after voting start date' });
+    }
+    
+    if (start < nomEnd) {
+      return res.status(400).json({ message: 'Voting start date must be after nomination end date' });
     }
 
     // Initialize posts with default structure
@@ -59,6 +69,8 @@ router.post('/', protect, authorize('Super Admin'), async (req, res) => {
 
     const election = await Election.create({
       title,
+      nominationStartDate: nomStart,
+      nominationEndDate: nomEnd,
       startDate: start,
       endDate: end,
       posts,

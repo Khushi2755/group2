@@ -126,6 +126,24 @@ const StudentDashboard = () => {
     }
   };
 
+  const isNominationPhaseActive = () => {
+    if (!electionSummary?.election) return false;
+    const now = new Date();
+    const election = electionSummary.election;
+    return election.isActive &&
+      new Date(election.nominationStartDate) <= now &&
+      new Date(election.nominationEndDate) >= now;
+  };
+
+  const isVotingPhaseActive = () => {
+    if (!electionSummary?.election) return false;
+    const now = new Date();
+    const election = electionSummary.election;
+    return election.isActive &&
+      new Date(election.startDate) <= now &&
+      new Date(election.endDate) >= now;
+  };
+
   return (
     <div className="student-dashboard">
       <nav className="dashboard-nav">
@@ -213,13 +231,24 @@ const StudentDashboard = () => {
             ) : (
               <p style={{ color: 'black' }}>No election available right now</p>
             )}
-            <button
-              className="card-button"
-              onClick={() => navigate('/student/elections')}
-              disabled={!electionSummary?.hasElection && !electionLoading}
-            >
-              {electionSummary?.hasElection ? 'Open Election' : 'No Election'}
-            </button>
+            <div style={{ display: 'flex', gap: '12px', width: '100%' }}>
+              <button
+                className="card-button"
+                onClick={() => navigate('/student/nominations')}
+                disabled={!isNominationPhaseActive()}
+                title={!isNominationPhaseActive() ? 'Nomination phase is not active' : 'Go to nominations'}
+              >
+                Nominations
+              </button>
+              <button
+                className="card-button"
+                onClick={() => navigate('/student/elections')}
+                disabled={!isVotingPhaseActive()}
+                title={!isVotingPhaseActive() ? 'Voting phase is not active' : 'Go to voting'}
+              >
+                Open Election
+              </button>
+            </div>
           </div>
 
           {/* Clubs Card */}
