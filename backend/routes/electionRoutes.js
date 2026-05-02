@@ -272,10 +272,13 @@ router.patch('/:id/start', protect, authorize('Super Admin'), async (req, res) =
     // Deactivate all other elections
     await Election.updateMany({ _id: { $ne: req.params.id } }, { isActive: false });
 
-    election.isActive = true;
-    await election.save();
+    // Update the election to active without triggering full document validation
+    await Election.updateOne({ _id: req.params.id }, { isActive: true });
 
-    res.json({ message: 'Election started successfully', election });
+    // Fetch the updated election
+    const updatedElection = await populateElection(Election.findById(req.params.id));
+
+    res.json({ message: 'Election started successfully', election: serializeElectionForUser(updatedElection, req.user._id) });
   } catch (error) {
     console.error('Start election error:', error);
     res.status(500).json({ message: 'Failed to start election' });
@@ -292,10 +295,13 @@ router.patch('/:id/end', protect, authorize('Super Admin'), async (req, res) => 
       return res.status(404).json({ message: 'Election not found' });
     }
 
-    election.isActive = false;
-    await election.save();
+    // Update the election to inactive without triggering full document validation
+    await Election.updateOne({ _id: req.params.id }, { isActive: false });
 
-    res.json({ message: 'Election ended successfully', election });
+    // Fetch the updated election
+    const updatedElection = await populateElection(Election.findById(req.params.id));
+
+    res.json({ message: 'Election ended successfully', election: serializeElectionForUser(updatedElection, req.user._id) });
   } catch (error) {
     console.error('End election error:', error);
     res.status(500).json({ message: 'Failed to end election' });
